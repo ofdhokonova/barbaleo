@@ -392,10 +392,10 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 // CONFIG — замени эти значения!
 // ═══════════════════════════════════════════════════════
 const CONFIG = {
-  SUPABASE_URL: 'https://gjqbqfufsdondlbcblpa.supabase.co',
-  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqcWJxZnVmc2RvbmRsYmNibHBhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Mzc2MzAsImV4cCI6MjA4OTAxMzYzMH0.83SKDlG5VqsGNaVbw164EYjYzWzYWdRj5TWX9VyAm_c',
-  ADMIN_TELEGRAM_ID: 955233482,
-  BOT_URL: 'https://barbaleo.onrender.com',
+  SUPABASE_URL: 'https://ТВОЙ_ПРОЕКТ.supabase.co',
+  SUPABASE_ANON_KEY: 'ТВОЙ_ANON_KEY',
+  ADMIN_TELEGRAM_ID: 123456789, // замени на свой Telegram ID
+  BOT_URL: 'https://barbaleo-bot.onrender.com', // замени на URL бота на Render
 };
 
 // ═══════════════════════════════════════════════════════
@@ -447,19 +447,6 @@ const State = {
   adminTab: 'bookings',
 };
 
-// Лимит записи: 120 мин стандарт, 180 мин только для химзавивки
-const MAX_DURATION_DEFAULT = 120;
-const MAX_DURATION_CHEMICAL = 180;
-function isChemicalSelected() {
-  return State.selectedServices.some(id => {
-    const s = State.services.find(x => x.id === id);
-    return s && s.name.toLowerCase().includes('химическ');
-  });
-}
-function maxAllowedDuration() {
-  return isChemicalSelected() ? MAX_DURATION_CHEMICAL : MAX_DURATION_DEFAULT;
-}
-
 // ═══════════════════════════════════════════════════════
 // NAVIGATION
 // ═══════════════════════════════════════════════════════
@@ -499,7 +486,7 @@ const Modal = {
 // ═══════════════════════════════════════════════════════
 async function loadServices() {
   try {
-    State.services = await SB.get('services?order=name.asc&is_active=eq.true') || [];
+    State.services = await SB.get('services?order=sort_order.asc,name.asc&is_active=eq.true') || [];
   } catch(e) { State.services = []; }
 }
 
@@ -517,9 +504,18 @@ async function loadBookings() {
   } catch(e) { State.bookings = []; }
 }
 
+async function loadDaysOff() {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const rows = await SB.get(`days_off?date=gte.${today}`) || [];
+    State.daysOff = {};
+    rows.forEach(r => State.daysOff[r.date] = r.id);
+  } catch(e) { State.daysOff = State.daysOff || {}; }
+}
+
 async function loadAllServices() {
   try {
-    State.services = await SB.get('services?order=name.asc') || [];
+    State.services = await SB.get('services?order=sort_order.asc,name.asc') || [];
   } catch(e) { State.services = []; }
 }
 
@@ -531,50 +527,83 @@ const Home = {
     const c = document.getElementById('home-content');
     c.innerHTML = '<div class="loader"><div class="spinner"></div><br>Загрузка...</div>';
     await Promise.all([loadServices(), loadSchedule()]);
-
-    // Ближайшие доступные дни
     const upcoming = this.getUpcomingSlots();
 
     c.innerHTML = `
-      <div style="text-align:center;padding:20px 0 24px">
-        <div style="font-size:28px;margin-bottom:6px">♛</div>
-        <div style="font-size:22px;color:var(--cream);letter-spacing:2px;margin-bottom:4px">BARBALEO CLUB</div>
-        <div style="font-size:12px;color:var(--muted);letter-spacing:2px">BARBERSHOP</div>
+      <div style="text-align:center;padding:28px 0 32px">
+        <div style="font-size:36px;margin-bottom:8px">♛</div>
+        <div style="font-size:22px;color:var(--cream);letter-spacing:3px;margin-bottom:4px">BARBALEO CLUB</div>
+        <div style="font-size:11px;color:var(--muted);letter-spacing:3px">BARBERSHOP</div>
       </div>
 
-      <button class="btn btn-gold" onclick="Nav.go('services')" style="margin-bottom:20px;font-size:16px;padding:16px">
-        ✂ Записаться
+      <button class="btn btn-gold" onclick="Nav.go('services')" style="font-size:16px;padding:16px;margin-bottom:10px;letter-spacing:1px">
+        ✂ &nbsp;Записаться
       </button>
 
-      <div class="sec-title">Ближайшие слоты</div>
-      ${upcoming.length ? upcoming.map(d => `
-        <div class="card" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer"
-             onclick="Booking.quickDate('${d.dateStr}')">
-          <div>
-            <div style="font-size:14px;color:var(--cream)">${d.label}</div>
-            <div style="font-size:12px;color:var(--muted);margin-top:2px">${d.hours}</div>
-          </div>
-          <span style="color:var(--gold);font-size:20px">›</span>
-        </div>
-      `).join('') : '<div class="empty"><div class="empty-icon">📅</div><div class="empty-text">Нет доступных слотов</div></div>'}
+      <button class="btn btn-outline" onclick="Home.showFreeSlots()" style="font-size:14px;padding:13px;margin-bottom:24px">
+        Посмотреть свободное время
+      </button>
 
-      <div class="sec-title">Услуги</div>
-      ${State.services.slice(0,5).map(s => `
-        <div class="svc-item" style="padding:10px 0">
-          <div class="svc-info"><div class="svc-name">${s.name}</div>${s.description ? `<div class="svc-meta">${s.description} · ${s.duration_minutes} мин</div>` : `<div class="svc-meta">${s.duration_minutes} мин</div>`}</div>
-          <div class="svc-price">${s.price.toLocaleString()} ₽</div>
-        </div>
-      `).join('')}
-      ${State.services.length > 5 ? `<div style="text-align:center;padding:10px;font-size:13px;color:var(--muted)">и ещё ${State.services.length - 5} услуг</div>` : ''}
+      <div id="free-slots-section"></div>
     `;
+  },
+
+  async showFreeSlots() {
+    const sec = document.getElementById('free-slots-section');
+    sec.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
+    await loadBookings();
+    const upcoming = this.getUpcomingSlots();
+    if (!upcoming.length) {
+      sec.innerHTML = '<div class="empty"><div class="empty-icon">📅</div><div class="empty-text">Нет доступных слотов в ближайшие дни</div></div>';
+      return;
+    }
+    sec.innerHTML = `
+      <div class="sec-title">Свободное время</div>
+      ${upcoming.map(d => {
+        const slots = this.getFreeSlots(d.dateStr);
+        return `
+          <div class="card gold-border" style="margin-bottom:10px">
+            <div style="font-size:13px;color:var(--gold);font-weight:600;margin-bottom:8px">${d.label} · ${d.dateFormatted}</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">
+              ${slots.length ? slots.map(t => `
+                <div style="padding:6px 10px;border:1px solid var(--bg5);border-radius:6px;font-size:12px;color:var(--cream2)">${t}</div>
+              `).join('') : '<div style="font-size:12px;color:var(--muted)">Все слоты заняты</div>'}
+            </div>
+          </div>
+        `;
+      }).join('')}
+    `;
+  },
+
+  getFreeSlots(dateStr) {
+    const date = new Date(dateStr);
+    const dow = date.getDay();
+    const sched = State.schedule[dow];
+    if (!sched || !sched.is_open) return [];
+    const [oh, om] = sched.open_time.split(':').map(Number);
+    const [ch, cm] = sched.close_time.split(':').map(Number);
+    const openMin = oh * 60 + om;
+    const closeMin = ch * 60 + cm;
+    const busy = new Set();
+    State.bookings.filter(b => b.date === dateStr && b.status !== 'cancelled').forEach(b => {
+      const [bh, bm] = b.time.split(':').map(Number);
+      const start = bh * 60 + bm;
+      for (let t = start; t < start + b.total_duration; t += 30) busy.add(t);
+    });
+    const slots = [];
+    for (let t = openMin; t + 60 <= closeMin; t += 30) {
+      if (!busy.has(t)) {
+        slots.push(String(Math.floor(t/60)).padStart(2,'0') + ':' + String(t%60).padStart(2,'0'));
+      }
+    }
+    return slots;
   },
 
   getUpcomingSlots() {
     const result = [];
     const today = new Date();
-    const days = ['вс','пн','вт','ср','чт','пт','сб'];
     const daysFull = ['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
-    for (let i = 0; i < 7 && result.length < 3; i++) {
+    for (let i = 0; i < 14 && result.length < 5; i++) {
       const d = new Date(today);
       d.setDate(d.getDate() + i);
       const dow = d.getDay();
@@ -582,7 +611,8 @@ const Home = {
       if (!sched || !sched.is_open) continue;
       const dateStr = d.toISOString().split('T')[0];
       const label = i === 0 ? 'Сегодня' : i === 1 ? 'Завтра' : daysFull[dow];
-      result.push({ dateStr, label, hours: `${sched.open_time.slice(0,5)} – ${sched.close_time.slice(0,5)}` });
+      const dateFormatted = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+      result.push({ dateStr, label, dateFormatted, hours: `${sched.open_time.slice(0,5)} – ${sched.close_time.slice(0,5)}` });
     }
     return result;
   }
@@ -609,21 +639,8 @@ const Booking = {
 
   toggleService(id) {
     const idx = State.selectedServices.indexOf(id);
-    if (idx === -1) {
-      // Проверяем лимит перед добавлением
-      const svc = State.services.find(x => x.id === id);
-      if (!svc) return;
-      const newDur = Booking.totalDuration() + svc.duration_minutes;
-      const limit = isChemicalSelected() || (svc.name.toLowerCase().includes('химическ'))
-        ? MAX_DURATION_CHEMICAL : MAX_DURATION_DEFAULT;
-      if (newDur > limit) {
-        showToast(`Максимум ${limit} мин за одну запись`);
-        return;
-      }
-      State.selectedServices.push(id);
-    } else {
-      State.selectedServices.splice(idx, 1);
-    }
+    if (idx === -1) State.selectedServices.push(id);
+    else State.selectedServices.splice(idx, 1);
     Services.updateSummary();
   },
 
@@ -743,10 +760,8 @@ const Services = {
     if (count) {
       const price = Booking.totalPrice();
       const dur = Booking.totalDuration();
-      const limit = maxAllowedDuration();
       document.getElementById('services-total-price').textContent = price.toLocaleString() + ' ₽';
-      document.getElementById('services-total-duration').textContent =
-        `~${dur} мин из ${limit} доступных`;
+      document.getElementById('services-total-duration').textContent = `~${dur} мин`;
       sum.style.display = 'block';
       btn.disabled = false; btn.style.opacity = 1;
     } else {
@@ -765,6 +780,7 @@ const DateTime = {
     c.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
     await loadSchedule();
     await loadBookings();
+    await loadDaysOff();
     this.renderCalendar();
   },
 
@@ -787,7 +803,7 @@ const DateTime = {
       const dow = date.getDay();
       const sched = State.schedule[dow];
       const isPast = date < new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const isOff = !sched || !sched.is_open;
+      const isOff = !sched || !sched.is_open || !!(State.daysOff && State.daysOff[dateStr]);
       const isToday = dateStr === now.toISOString().split('T')[0];
       const isSelected = dateStr === State.selectedDate;
       let cls = 'date-cell';
@@ -1108,21 +1124,99 @@ const Admin = {
     const c = document.getElementById('admin-content');
     await loadAllServices();
     c.innerHTML = `
-      <button class="btn btn-outline" style="margin-bottom:16px" onclick="Admin.openServiceModal()">
+      <button class="btn btn-outline" style="margin-bottom:12px" onclick="Admin.openServiceModal()">
         + Добавить услугу
       </button>
-      ${State.services.map(s => `
-        <div class="card" style="display:flex;align-items:center;gap:12px">
-          <div style="flex:1">
-            <div style="font-size:14px;color:var(--cream)">${s.name}</div>
-            <div style="font-size:12px;color:var(--muted);margin-top:2px">${s.duration_minutes} мин · ${s.is_active ? 'Активна' : 'Скрыта'}</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;text-align:center;letter-spacing:0.5px">
+        Перетащи ☰ или используй ↑↓ для изменения порядка
+      </div>
+      <div id="services-sort-list">
+        ${State.services.map((s, idx) => `
+          <div class="card svc-sort-item" data-id="${s.id}" draggable="true"
+               style="display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:default;transition:opacity .15s">
+            <div class="svc-drag-handle" style="color:var(--muted);font-size:18px;cursor:grab;padding:4px;flex-shrink:0;user-select:none"
+                 title="Перетащить">☰</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;color:${s.is_active ? 'var(--cream)' : 'var(--muted)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.name}</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:1px">${s.duration_minutes} мин · ${s.price.toLocaleString()} ₽</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0">
+              <button class="btn-icon" style="font-size:13px;padding:2px 6px;color:${idx===0?'var(--bg5)':'var(--gold)'}"
+                onclick="Admin.moveService(${idx},-1)" ${idx===0?'disabled':''}>▲</button>
+              <button class="btn-icon" style="font-size:13px;padding:2px 6px;color:${idx===State.services.length-1?'var(--bg5)':'var(--gold)'}"
+                onclick="Admin.moveService(${idx},1)" ${idx===State.services.length-1?'disabled':''}>▼</button>
+            </div>
+            <button class="btn-icon" onclick="Admin.openServiceModal(${s.id})" title="Редактировать" style="flex-shrink:0">✎</button>
+            <button class="btn-icon" onclick="Admin.toggleActive(${s.id},${s.is_active})" title="${s.is_active?'Скрыть':'Показать'}" style="flex-shrink:0;color:${s.is_active?'var(--gold)':'var(--muted)'}">${s.is_active?'◉':'○'}</button>
+            <button class="btn-icon" style="color:var(--danger);flex-shrink:0" onclick="Admin.deleteService(${s.id},'${s.name.replace(/'/g,'\\\'')}')" title="Удалить">🗑</button>
           </div>
-          <div style="font-size:15px;color:var(--gold);font-weight:700;margin-right:8px">${s.price.toLocaleString()} ₽</div>
-          <button class="btn-icon" onclick="Admin.openServiceModal(${s.id})">✎</button>
-          <button class="btn-icon" style="color:var(--danger)" onclick="Admin.toggleActive(${s.id},${s.is_active})">${s.is_active ? '◉' : '○'}</button>
-        </div>
-      `).join('')}
+        `).join('')}
+      </div>
     `;
+    this.initDragSort();
+  },
+
+  initDragSort() {
+    const list = document.getElementById('services-sort-list');
+    if (!list) return;
+    let dragEl = null, dragOver = null;
+
+    list.querySelectorAll('.svc-sort-item').forEach(item => {
+      item.addEventListener('dragstart', e => {
+        dragEl = item;
+        setTimeout(() => item.style.opacity = '0.4', 0);
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      item.addEventListener('dragend', () => {
+        item.style.opacity = '1';
+        list.querySelectorAll('.svc-sort-item').forEach(i => i.style.borderColor = '');
+        if (dragEl) Admin.saveDragOrder();
+        dragEl = null;
+      });
+      item.addEventListener('dragover', e => {
+        e.preventDefault();
+        if (!dragEl || item === dragEl) return;
+        dragOver = item;
+        // Visual indicator
+        list.querySelectorAll('.svc-sort-item').forEach(i => i.style.borderTopColor = '');
+        item.style.borderTopColor = 'var(--gold)';
+        // Reorder DOM
+        const items = [...list.querySelectorAll('.svc-sort-item')];
+        const fromIdx = items.indexOf(dragEl);
+        const toIdx = items.indexOf(item);
+        if (fromIdx < toIdx) item.after(dragEl);
+        else item.before(dragEl);
+      });
+    });
+  },
+
+  async saveDragOrder() {
+    const list = document.getElementById('services-sort-list');
+    if (!list) return;
+    const items = [...list.querySelectorAll('.svc-sort-item')];
+    try {
+      for (let i = 0; i < items.length; i++) {
+        const id = parseInt(items[i].dataset.id);
+        await SB.patch(`services?id=eq.${id}`, { sort_order: i + 1 });
+      }
+      // Обновляем State.services в новом порядке без перерисовки
+      const newOrder = items.map(el => State.services.find(s => s.id === parseInt(el.dataset.id))).filter(Boolean);
+      State.services = newOrder;
+      showToast('Порядок сохранён ✓');
+    } catch(e) { showToast('Ошибка сохранения порядка'); }
+  },
+
+  async moveService(idx, dir) {
+    const newIdx = idx + dir;
+    if (newIdx < 0 || newIdx >= State.services.length) return;
+    // Swap
+    [State.services[idx], State.services[newIdx]] = [State.services[newIdx], State.services[idx]];
+    // Save both
+    try {
+      await SB.patch(`services?id=eq.${State.services[idx].id}`, { sort_order: idx + 1 });
+      await SB.patch(`services?id=eq.${State.services[newIdx].id}`, { sort_order: newIdx + 1 });
+      this.renderServices();
+    } catch(e) { showToast('Ошибка'); this.renderServices(); }
   },
 
   openServiceModal(id) {
@@ -1159,11 +1253,83 @@ const Admin = {
     } catch(e) { showToast('Ошибка'); }
   },
 
+  async deleteService(id, name) {
+    if (!confirm(`Удалить услугу "${name}"?\nЭто действие нельзя отменить.`)) return;
+    try {
+      await SB.delete(`services?id=eq.${id}`);
+      showToast('Услуга удалена');
+      this.renderServices();
+    } catch(e) { showToast('Ошибка удаления'); }
+  },
+
   async renderSchedule() {
     const c = document.getElementById('admin-content');
     await loadSchedule();
+    // Загружаем конкретные выходные дни
+    try {
+      const rows = await SB.get('days_off?order=date.asc') || [];
+      State.daysOff = {};
+      rows.forEach(r => State.daysOff[r.date] = r.id);
+    } catch(e) { State.daysOff = {}; }
+
     const dayNames = ['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
+    const now = new Date();
+    const y = State.schedCalYear || now.getFullYear();
+    const m = State.schedCalMonth !== undefined ? State.schedCalMonth : now.getMonth();
+    State.schedCalYear = y; State.schedCalMonth = m;
+    const monthNames = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+    const first = new Date(y, m, 1);
+    const lastDay = new Date(y, m+1, 0).getDate();
+    const startDow = first.getDay();
+    const dayLabels = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+
+    let cells = '';
+    for (let i = 0; i < startDow; i++) cells += '<div class="date-cell"></div>';
+    for (let d = 1; d <= lastDay; d++) {
+      const date = new Date(y, m, d);
+      const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const dow = date.getDay();
+      const sched = State.schedule[dow];
+      const isPast = date < new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const isOff = !sched || !sched.is_open;
+      const isDayOff = !!State.daysOff[dateStr];
+      const isToday = dateStr === now.toISOString().split('T')[0];
+      let cls = 'date-cell';
+      let style = '';
+      if (isPast) { cls += ' past'; }
+      else if (isOff) { cls += ' off'; }
+      else if (isDayOff) { style = 'background:rgba(192,57,43,0.25);color:#e57a72;border-color:rgba(192,57,43,0.5);'; cls += ' available'; }
+      else { cls += ' available'; }
+      if (isToday) cls += ' today';
+      const onclick = (!isPast && !isOff) ? `onclick="Admin.toggleDayOff('${dateStr}')"` : '';
+      cells += `<div class="${cls}" style="${style}" ${onclick}>${d}</div>`;
+    }
+
     c.innerHTML = `
+      <div class="sec-title">Выходные дни</div>
+      <div class="card" style="margin-bottom:16px">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Нажми на день чтобы отметить как выходной (красный). Нажми снова — снять.</div>
+        <div class="cal-nav">
+          <button class="cal-nav-btn" onclick="Admin.schedPrevMonth()">‹</button>
+          <div class="cal-month">${monthNames[m]} ${y}</div>
+          <button class="cal-nav-btn" onclick="Admin.schedNextMonth()">›</button>
+        </div>
+        <div class="date-grid">${dayLabels.map(d => `<div class="date-label">${d}</div>`).join('')}</div>
+        <div class="date-grid">${cells}</div>
+        ${Object.keys(State.daysOff).length ? `
+          <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--bg5)">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Отмеченные выходные:</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">
+              ${Object.keys(State.daysOff).sort().map(d => {
+                const df = new Date(d+'T00:00:00').toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
+                return `<div style="padding:4px 8px;background:rgba(192,57,43,0.2);color:#e57a72;border-radius:6px;font-size:12px;cursor:pointer" onclick="Admin.toggleDayOff('${d}')">${df} ✕</div>`;
+              }).join('')}
+            </div>
+          </div>
+        ` : ''}
+      </div>
+
+      <div class="sec-title">Рабочие часы по дням</div>
       <div class="card">
         ${[1,2,3,4,5,6,0].map(dow => {
           const s = State.schedule[dow] || { is_open: false, open_time: '09:00', close_time: '21:00' };
@@ -1173,19 +1339,48 @@ const Admin = {
               <div class="toggle-wrap">
                 <div class="toggle ${s.is_open ? 'on' : ''}" onclick="Admin.toggleDay(${dow})" id="toggle-${dow}"></div>
                 <div class="time-range" id="time-range-${dow}" style="${s.is_open ? '' : 'opacity:0.3;pointer-events:none'}">
-                  <input class="time-input" type="time" value="${s.open_time}" id="open-${dow}" onchange="Admin.saveScheduleDay(${dow})">
+                  <input class="time-input" type="time" value="${s.open_time.slice(0,5)}" id="open-${dow}">
                   <span style="color:var(--muted);font-size:12px">–</span>
-                  <input class="time-input" type="time" value="${s.close_time}" id="close-${dow}" onchange="Admin.saveScheduleDay(${dow})">
+                  <input class="time-input" type="time" value="${s.close_time.slice(0,5)}" id="close-${dow}">
                 </div>
               </div>
             </div>
           `;
         }).join('')}
       </div>
-      <div style="padding-top:4px">
-        <button class="btn btn-gold" onclick="Admin.saveAllSchedule()">Сохранить график</button>
+      <div style="padding-top:10px">
+        <button class="btn btn-gold" onclick="Admin.saveAllSchedule()">Сохранить рабочие часы</button>
       </div>
     `;
+  },
+
+  async toggleDayOff(dateStr) {
+    try {
+      if (State.daysOff[dateStr]) {
+        // Снять выходной
+        await SB.delete(`days_off?date=eq.${dateStr}`);
+        delete State.daysOff[dateStr];
+        showToast('Выходной снят');
+      } else {
+        // Поставить выходной
+        const res = await SB.post('days_off', { date: dateStr });
+        State.daysOff[dateStr] = res?.[0]?.id || dateStr;
+        showToast('День отмечен как выходной');
+      }
+      this.renderSchedule();
+    } catch(e) { showToast('Ошибка'); }
+  },
+
+  schedPrevMonth() {
+    if (State.schedCalMonth === 0) { State.schedCalMonth = 11; State.schedCalYear--; }
+    else State.schedCalMonth--;
+    this.renderSchedule();
+  },
+
+  schedNextMonth() {
+    if (State.schedCalMonth === 11) { State.schedCalMonth = 0; State.schedCalYear++; }
+    else State.schedCalMonth++;
+    this.renderSchedule();
   },
 
   toggleDay(dow) {
