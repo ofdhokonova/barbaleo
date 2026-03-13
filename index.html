@@ -548,10 +548,11 @@ const Home = {
     `;
   },
 
-  async showFreeSlots() {
+async showFreeSlots() {
     const sec = document.getElementById('free-slots-section');
     sec.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
     await loadBookings();
+    await loadDaysOff();
     const upcoming = this.getUpcomingSlots();
     if (!upcoming.length) {
       sec.innerHTML = '<div class="empty"><div class="empty-icon">📅</div><div class="empty-text">Нет доступных слотов в ближайшие дни</div></div>';
@@ -599,7 +600,7 @@ const Home = {
     return slots;
   },
 
-  getUpcomingSlots() {
+    getUpcomingSlots() {
     const result = [];
     const today = new Date();
     const daysFull = ['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
