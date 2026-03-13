@@ -392,10 +392,10 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 // CONFIG — замени эти значения!
 // ═══════════════════════════════════════════════════════
 const CONFIG = {
-  SUPABASE_URL: 'https://gjqbqfufsdondlbcblpa.supabase.co',
-  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqcWJxZnVmc2RvbmRsYmNibHBhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0Mzc2MzAsImV4cCI6MjA4OTAxMzYzMH0.83SKDlG5VqsGNaVbw164EYjYzWzYWdRj5TWX9VyAm_c',
-  ADMIN_TELEGRAM_ID: 955233482,
-  BOT_URL: 'https://barbaleo.onrender.com',
+  SUPABASE_URL: 'https://ТВОЙ_ПРОЕКТ.supabase.co',
+  SUPABASE_ANON_KEY: 'ТВОЙ_ANON_KEY',
+  ADMIN_TELEGRAM_ID: 123456789, // замени на свой Telegram ID
+  BOT_URL: 'https://barbaleo-bot.onrender.com', // замени на URL бота на Render
 };
 
 // ═══════════════════════════════════════════════════════
@@ -548,7 +548,7 @@ const Home = {
     `;
   },
 
-async showFreeSlots() {
+  async showFreeSlots() {
     const sec = document.getElementById('free-slots-section');
     sec.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
     await loadBookings();
@@ -581,6 +581,7 @@ async showFreeSlots() {
     const dow = date.getDay();
     const sched = State.schedule[dow];
     if (!sched || !sched.is_open) return [];
+    if (State.daysOff && State.daysOff[dateStr]) return [];
     const [oh, om] = sched.open_time.split(':').map(Number);
     const [ch, cm] = sched.close_time.split(':').map(Number);
     const openMin = oh * 60 + om;
@@ -600,17 +601,18 @@ async showFreeSlots() {
     return slots;
   },
 
-    getUpcomingSlots() {
+  getUpcomingSlots() {
     const result = [];
     const today = new Date();
     const daysFull = ['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
-    for (let i = 0; i < 14 && result.length < 5; i++) {
+    for (let i = 0; i < 30 && result.length < 5; i++) {
       const d = new Date(today);
       d.setDate(d.getDate() + i);
       const dow = d.getDay();
       const sched = State.schedule[dow];
       if (!sched || !sched.is_open) continue;
       const dateStr = d.toISOString().split('T')[0];
+      if (State.daysOff && State.daysOff[dateStr]) continue;
       const label = i === 0 ? 'Сегодня' : i === 1 ? 'Завтра' : daysFull[dow];
       const dateFormatted = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
       result.push({ dateStr, label, dateFormatted, hours: `${sched.open_time.slice(0,5)} – ${sched.close_time.slice(0,5)}` });
