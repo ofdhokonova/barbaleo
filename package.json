@@ -1,0 +1,12 @@
+{
+  "name": "barbaleo-bot",
+  "version": "1.0.0",
+  "description": "Telegram Bot for Barbaleo Club barbershop",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

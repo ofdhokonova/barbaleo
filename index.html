@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Barbaleo Club</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root {
+  --gold: #C9A84C;
+  --gold-light: #E2C068;
+  --gold-dark: #8A6A28;
+  --gold-dim: rgba(201,168,76,0.25);
+  --bg: #0D0B09;
+  --bg2: #161310;
+  --bg3: #1E1A14;
+  --bg4: #26211A;
+  --bg5: #302A20;
+  --cream: #F0E6CC;
+  --cream2: #C8B98A;
+  --muted: #6B6050;
+  --danger: #C0392B;
+  --success: #27AE60;
+  --r: 10px;
+  --rs: 6px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--cream);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;overflow-x:hidden;font-size:15px}
+button{cursor:pointer;border:none;font-family:inherit;font-size:inherit}
+input,select,textarea{font-family:inherit;font-size:inherit}
+
+/* SCREENS */
+.screen{display:none;flex-direction:column;min-height:100vh}
+.screen.active{display:flex}
+
+/* HEADER */
+.hdr{background:var(--bg2);border-bottom:1px solid var(--gold-dim);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;gap:8px}
+.hdr-logo{display:flex;align-items:center;gap:8px}
+.hdr-crown{font-size:18px;line-height:1}
+.hdr-name{font-size:11px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;font-weight:600}
+.hdr-back{background:none;color:var(--gold);font-size:20px;padding:4px 8px 4px 0;line-height:1}
+.hdr-title{font-size:14px;color:var(--cream);letter-spacing:1px;flex:1;text-align:center}
+.hdr-action{background:none;color:var(--gold);font-size:12px;letter-spacing:1px;padding:4px 0}
+
+/* BOTTOM NAV */
+.bnav{background:var(--bg2);border-top:1px solid var(--gold-dim);display:flex;position:sticky;bottom:0;z-index:100}
+.bnav-btn{flex:1;padding:9px 4px 7px;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--muted);font-size:9px;letter-spacing:1px;text-transform:uppercase;transition:color .2s}
+.bnav-btn.active{color:var(--gold)}
+.bnav-icon{font-size:19px;line-height:1}
+
+/* SCROLL CONTENT */
+.content{flex:1;overflow-y:auto;padding:16px;-webkit-overflow-scrolling:touch}
+.content.np{padding:0}
+
+/* SECTION TITLE */
+.sec-title{font-size:10px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin:20px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--gold-dim)}
+.sec-title:first-child{margin-top:0}
+
+/* CARDS */
+.card{background:var(--bg3);border:1px solid var(--bg5);border-radius:var(--r);padding:14px;margin-bottom:10px}
+.card.gold-border{border-color:var(--gold-dim)}
+
+/* BUTTONS */
+.btn{display:block;width:100%;padding:14px;border-radius:var(--r);font-size:14px;font-weight:600;letter-spacing:1px;text-align:center;transition:all .15s}
+.btn-gold{background:var(--gold);color:#0D0B09}
+.btn-gold:active{background:var(--gold-light)}
+.btn-outline{background:transparent;border:1px solid var(--gold);color:var(--gold)}
+.btn-outline:active{background:var(--gold-dim)}
+.btn-danger{background:transparent;border:1px solid var(--danger);color:var(--danger)}
+.btn-sm{padding:8px 14px;font-size:12px;width:auto;display:inline-block}
+.btn-icon{background:none;color:var(--gold);font-size:18px;padding:6px}
+
+/* SERVICE CHECKBOX */
+.svc-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--bg5)}
+.svc-item:last-child{border-bottom:none}
+.svc-check{width:22px;height:22px;border-radius:4px;border:1.5px solid var(--gold-dark);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;cursor:pointer}
+.svc-check.checked{background:var(--gold);border-color:var(--gold)}
+.svc-check svg{width:13px;height:13px;stroke:#0D0B09;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;opacity:0;transition:opacity .15s}
+.svc-check.checked svg{opacity:1}
+.svc-info{flex:1;cursor:pointer}
+.svc-name{font-size:14px;color:var(--cream);line-height:1.3}
+.svc-meta{font-size:12px;color:var(--muted);margin-top:2px}
+.svc-price{font-size:14px;color:var(--gold);font-weight:600;flex-shrink:0}
+
+/* DATE PICKER */
+.date-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px}
+.date-label{font-size:10px;text-align:center;color:var(--muted);padding:4px 0;letter-spacing:0.5px}
+.date-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:var(--rs);font-size:13px;cursor:pointer;border:1px solid transparent;transition:all .15s}
+.date-cell:empty{visibility:hidden}
+.date-cell.today{border-color:var(--gold-dark);color:var(--gold)}
+.date-cell.selected{background:var(--gold);color:#0D0B09;font-weight:700}
+.date-cell.past{color:var(--muted);pointer-events:none;opacity:0.4}
+.date-cell.off{color:var(--muted);pointer-events:none;opacity:0.35}
+.date-cell.available:not(.selected):hover{background:var(--bg4)}
+.cal-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.cal-nav-btn{background:none;color:var(--gold);font-size:20px;padding:4px 10px}
+.cal-month{font-size:14px;letter-spacing:1px;color:var(--cream)}
+
+/* TIME SLOTS */
+.time-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px}
+.time-slot{padding:10px 4px;text-align:center;border-radius:var(--rs);border:1px solid var(--bg5);font-size:13px;cursor:pointer;transition:all .15s;color:var(--cream2)}
+.time-slot.selected{border-color:var(--gold);background:var(--gold-dim);color:var(--gold);font-weight:600}
+.time-slot.busy{background:var(--bg4);color:var(--muted);pointer-events:none;text-decoration:line-through}
+.time-slot:not(.busy):not(.selected):hover{border-color:var(--gold-dark)}
+
+/* BOOKING SUMMARY */
+.summary-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bg5)}
+.summary-row:last-child{border-bottom:none}
+.summary-row.total{border-top:1px solid var(--gold-dim);margin-top:6px;padding-top:12px}
+.summary-label{font-size:13px;color:var(--muted)}
+.summary-val{font-size:13px;color:var(--cream)}
+.summary-val.gold{color:var(--gold);font-weight:700;font-size:15px}
+
+/* BOOKING LIST (admin) */
+.booking-card{background:var(--bg3);border-left:3px solid var(--gold);border-radius:0 var(--r) var(--r) 0;padding:12px 14px;margin-bottom:8px}
+.booking-card.pending{border-left-color:var(--gold)}
+.booking-card.done{border-left-color:var(--success)}
+.booking-card.cancelled{border-left-color:var(--danger);opacity:0.6}
+.booking-time{font-size:13px;color:var(--gold);font-weight:600;margin-bottom:4px}
+.booking-client{font-size:14px;color:var(--cream)}
+.booking-services{font-size:12px;color:var(--muted);margin-top:3px}
+.booking-actions{display:flex;gap:8px;margin-top:10px}
+
+/* FORM INPUTS */
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.field input,.field select,.field textarea{width:100%;background:var(--bg3);border:1px solid var(--bg5);border-radius:var(--rs);padding:11px 13px;color:var(--cream);outline:none;transition:border-color .15s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--gold)}
+.field select option{background:var(--bg3)}
+.field textarea{min-height:80px;resize:vertical}
+.field-row{display:flex;gap:10px}
+.field-row .field{flex:1}
+
+/* BADGE */
+.badge{display:inline-block;padding:3px 8px;border-radius:20px;font-size:10px;letter-spacing:1px;text-transform:uppercase;font-weight:600}
+.badge-pending{background:rgba(201,168,76,0.15);color:var(--gold)}
+.badge-done{background:rgba(39,174,96,0.15);color:#27AE60}
+.badge-cancelled{background:rgba(192,57,43,0.15);color:#C0392B}
+
+/* PROFILE */
+.profile-avatar{width:72px;height:72px;border-radius:50%;background:var(--bg3);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 12px;overflow:hidden}
+.profile-avatar img{width:100%;height:100%;object-fit:cover}
+.profile-name{font-size:18px;text-align:center;color:var(--cream);margin-bottom:4px}
+.profile-sub{font-size:12px;text-align:center;color:var(--muted);margin-bottom:20px}
+
+/* HISTORY */
+.hist-item{background:var(--bg3);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;border:1px solid var(--bg5)}
+.hist-date{font-size:11px;color:var(--gold);letter-spacing:1px;margin-bottom:4px}
+.hist-services{font-size:13px;color:var(--cream);margin-bottom:4px}
+.hist-price{font-size:13px;color:var(--gold);font-weight:600}
+
+/* SCHEDULE ADMIN */
+.day-toggle{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--bg5)}
+.day-toggle:last-child{border-bottom:none}
+.day-name{font-size:14px;color:var(--cream);width:60px}
+.toggle-wrap{display:flex;align-items:center;gap:10px}
+.toggle{width:42px;height:24px;background:var(--bg5);border-radius:12px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--gold)}
+.toggle::after{content:'';position:absolute;width:18px;height:18px;background:var(--bg);border-radius:50%;top:3px;left:3px;transition:left .2s}
+.toggle.on::after{left:21px}
+.time-range{display:flex;align-items:center;gap:6px}
+.time-input{width:70px;background:var(--bg3);border:1px solid var(--bg5);border-radius:var(--rs);padding:6px 8px;color:var(--cream);text-align:center;font-size:13px;outline:none}
+.time-input:focus{border-color:var(--gold)}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty-icon{font-size:40px;margin-bottom:12px;opacity:0.5}
+.empty-text{font-size:14px;line-height:1.5}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;display:flex;align-items:flex-end}
+.modal-overlay.hidden{display:none}
+.modal{background:var(--bg2);border-radius:var(--r) var(--r) 0 0;padding:20px 16px 32px;width:100%;max-height:85vh;overflow-y:auto;border-top:1px solid var(--gold-dim)}
+.modal-title{font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:16px;text-align:center}
+
+/* STEPS */
+.step-bar{display:flex;gap:4px;margin-bottom:16px;padding:0 4px}
+.step-dot{flex:1;height:3px;border-radius:2px;background:var(--bg5)}
+.step-dot.done{background:var(--gold)}
+.step-dot.active{background:var(--gold-light)}
+
+/* TOAST */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--gold-dim);border-radius:20px;padding:10px 20px;font-size:13px;color:var(--cream);z-index:300;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+
+/* LOADER */
+.loader{text-align:center;padding:30px;color:var(--muted);font-size:13px}
+.spinner{display:inline-block;width:24px;height:24px;border:2px solid var(--bg5);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ADMIN NAV TABS */
+.admin-tabs{display:flex;background:var(--bg2);border-bottom:1px solid var(--gold-dim)}
+.admin-tab{flex:1;padding:11px 4px;background:none;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);border-bottom:2px solid transparent;transition:all .2s}
+.admin-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+
+/* CLIENT NAME INPUT */
+.client-name-row{display:flex;gap:10px;align-items:flex-end}
+.client-name-row .field{flex:1;margin-bottom:0}
+
+/* DIVIDER */
+.divider{height:1px;background:var(--bg5);margin:16px 0}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ═══════════════════════════════════════════════════════
+     ЭКРАН 1: ГЛАВНАЯ (клиент)
+═══════════════════════════════════════════════════════ -->
+<div id="screen-home" class="screen active">
+  <div class="hdr">
+    <div class="hdr-logo">
+      <span class="hdr-crown">♛</span>
+      <span class="hdr-name">Barbaleo</span>
+    </div>
+    <button class="hdr-action" onclick="Nav.go('profile')">Профиль</button>
+  </div>
+  <div class="content" id="home-content">
+    <div class="loader"><div class="spinner"></div><br>Загрузка...</div>
+  </div>
+  <div class="bnav">
+    <button class="bnav-btn active" onclick="Nav.go('home')">
+      <span class="bnav-icon">✂</span>Запись
+    </button>
+    <button class="bnav-btn" onclick="Nav.go('profile')">
+      <span class="bnav-icon">◉</span>Профиль
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     ЭКРАН 2: ВЫБОР УСЛУГ
+═══════════════════════════════════════════════════════ -->
+<div id="screen-services" class="screen">
+  <div class="hdr">
+    <button class="hdr-back" onclick="Nav.go('home')">‹</button>
+    <span class="hdr-title">Выбор услуг</span>
+    <span style="width:40px"></span>
+  </div>
+  <div class="step-bar" style="padding:12px 16px 0">
+    <div class="step-dot active" id="step1"></div>
+    <div class="step-dot" id="step2"></div>
+    <div class="step-dot" id="step3"></div>
+  </div>
+  <div class="content" id="services-content"></div>
+  <div style="padding:12px 16px;background:var(--bg)">
+    <div id="services-summary" style="display:none" class="card gold-border" style="margin-bottom:10px">
+      <div class="summary-row total">
+        <span class="summary-label">Итого</span>
+        <span class="summary-val gold" id="services-total-price">0 ₽</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px" id="services-total-duration"></div>
+    </div>
+    <button class="btn btn-gold" onclick="Booking.nextToDate()" id="btn-next-date" disabled style="opacity:0.4">
+      Выбрать дату →
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     ЭКРАН 3: ВЫБОР ДАТЫ И ВРЕМЕНИ
+═══════════════════════════════════════════════════════ -->
+<div id="screen-datetime" class="screen">
+  <div class="hdr">
+    <button class="hdr-back" onclick="Nav.go('services')">‹</button>
+    <span class="hdr-title">Дата и время</span>
+    <span style="width:40px"></span>
+  </div>
+  <div class="step-bar" style="padding:12px 16px 0">
+    <div class="step-dot done" id="step1b"></div>
+    <div class="step-dot active" id="step2b"></div>
+    <div class="step-dot" id="step3b"></div>
+  </div>
+  <div class="content" id="datetime-content"></div>
+  <div style="padding:12px 16px;background:var(--bg)">
+    <button class="btn btn-gold" onclick="Booking.nextToConfirm()" id="btn-next-confirm" disabled style="opacity:0.4">
+      Подтвердить время →
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     ЭКРАН 4: ПОДТВЕРЖДЕНИЕ
+═══════════════════════════════════════════════════════ -->
+<div id="screen-confirm" class="screen">
+  <div class="hdr">
+    <button class="hdr-back" onclick="Nav.go('datetime')">‹</button>
+    <span class="hdr-title">Подтверждение</span>
+    <span style="width:40px"></span>
+  </div>
+  <div class="step-bar" style="padding:12px 16px 0">
+    <div class="step-dot done"></div>
+    <div class="step-dot done"></div>
+    <div class="step-dot active"></div>
+  </div>
+  <div class="content" id="confirm-content"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     ЭКРАН 5: ПРОФИЛЬ
+═══════════════════════════════════════════════════════ -->
+<div id="screen-profile" class="screen">
+  <div class="hdr">
+    <div class="hdr-logo">
+      <span class="hdr-crown">♛</span>
+      <span class="hdr-name">Barbaleo</span>
+    </div>
+    <span style="width:60px"></span>
+  </div>
+  <div class="content" id="profile-content">
+    <div class="loader"><div class="spinner"></div></div>
+  </div>
+  <div class="bnav">
+    <button class="bnav-btn" onclick="Nav.go('home')">
+      <span class="bnav-icon">✂</span>Запись
+    </button>
+    <button class="bnav-btn active" onclick="Nav.go('profile')">
+      <span class="bnav-icon">◉</span>Профиль
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     ЭКРАН 6: АДМИНКА
+═══════════════════════════════════════════════════════ -->
+<div id="screen-admin" class="screen">
+  <div class="hdr">
+    <div class="hdr-logo">
+      <span class="hdr-crown">♛</span>
+      <span class="hdr-name">Админка</span>
+    </div>
+    <button class="hdr-action" onclick="Nav.go('home')">Выход</button>
+  </div>
+  <div class="admin-tabs">
+    <button class="admin-tab active" onclick="Admin.tab('bookings',this)">Записи</button>
+    <button class="admin-tab" onclick="Admin.tab('services',this)">Услуги</button>
+    <button class="admin-tab" onclick="Admin.tab('schedule',this)">График</button>
+  </div>
+  <div class="content" id="admin-content">
+    <div class="loader"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<!-- MODAL: Добавить/редактировать услугу -->
+<div class="modal-overlay hidden" id="modal-service">
+  <div class="modal">
+    <div class="modal-title" id="modal-service-title">Новая услуга</div>
+    <input type="hidden" id="svc-edit-id">
+    <div class="field"><label>Название</label><input id="svc-name" type="text" placeholder="Мужская стрижка"></div>
+    <div class="field-row">
+      <div class="field"><label>Цена (₽)</label><input id="svc-price" type="number" placeholder="1200"></div>
+      <div class="field"><label>Длительность (мин)</label><input id="svc-duration" type="number" placeholder="45"></div>
+    </div>
+    <div class="field"><label>Описание (опц.)</label><input id="svc-desc" type="text" placeholder="Стрижка + укладка"></div>
+    <div style="display:flex;gap:10px;margin-top:6px">
+      <button class="btn btn-outline btn-sm" style="flex:1;padding:12px" onclick="Modal.close('modal-service')">Отмена</button>
+      <button class="btn btn-gold btn-sm" style="flex:1;padding:12px" onclick="Admin.saveService()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Ручная запись (admin) -->
+<div class="modal-overlay hidden" id="modal-manual-booking">
+  <div class="modal">
+    <div class="modal-title">Ручная запись</div>
+    <div class="field"><label>Имя клиента</label><input id="manual-client-name" type="text" placeholder="Имя клиента"></div>
+    <div class="field"><label>Телефон (опц.)</label><input id="manual-client-phone" type="tel" placeholder="+7..."></div>
+    <div class="field">
+      <label>Дата</label>
+      <input id="manual-date" type="date">
+    </div>
+    <div class="field">
+      <label>Время</label>
+      <input id="manual-time" type="time">
+    </div>
+    <div class="field">
+      <label>Услуги</label>
+      <div id="manual-services-list"></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:6px">
+      <button class="btn btn-outline" style="flex:1;padding:12px" onclick="Modal.close('modal-manual-booking')">Отмена</button>
+      <button class="btn btn-gold" style="flex:1;padding:12px" onclick="Admin.saveManualBooking()">Записать</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// CONFIG — замени эти значения!
+// ═══════════════════════════════════════════════════════
+const CONFIG = {
+  SUPABASE_URL: 'https://ТВОЙ_ПРОЕКТ.supabase.co',
+  SUPABASE_ANON_KEY: 'ТВОЙ_ANON_KEY',
+  ADMIN_TELEGRAM_ID: 123456789, // замени на свой Telegram ID
+  BOT_URL: 'https://barbaleo-bot.onrender.com', // замени на URL бота на Render
+};
+
+// ═══════════════════════════════════════════════════════
+// SUPABASE CLIENT
+// ═══════════════════════════════════════════════════════
+const SB = {
+  async req(method, path, body) {
+    const r = await fetch(CONFIG.SUPABASE_URL + '/rest/v1/' + path, {
+      method,
+      headers: {
+        'apikey': CONFIG.SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + CONFIG.SUPABASE_ANON_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': method === 'POST' ? 'return=representation' : '',
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    if (!r.ok) { const e = await r.text(); throw new Error(e); }
+    const text = await r.text();
+    return text ? JSON.parse(text) : null;
+  },
+  get: (path) => SB.req('GET', path),
+  post: (path, body) => SB.req('POST', path, body),
+  patch: (path, body) => SB.req('PATCH', path, body),
+  delete: (path) => SB.req('DELETE', path),
+};
+
+// ═══════════════════════════════════════════════════════
+// TELEGRAM WEB APP
+// ═══════════════════════════════════════════════════════
+const TG = window.Telegram?.WebApp;
+if (TG) { TG.expand(); TG.setHeaderColor('#0D0B09'); TG.setBackgroundColor('#0D0B09'); }
+const TG_USER = TG?.initDataUnsafe?.user || null;
+
+// ═══════════════════════════════════════════════════════
+// APP STATE
+// ═══════════════════════════════════════════════════════
+const State = {
+  services: [],
+  schedule: {},
+  selectedServices: [],
+  selectedDate: null,
+  selectedTime: null,
+  calYear: new Date().getFullYear(),
+  calMonth: new Date().getMonth(),
+  bookings: [],
+  userBookings: [],
+  currentUser: null,
+  adminTab: 'bookings',
+};
+
+// Лимит записи: 120 мин стандарт, 180 мин только для химзавивки
+const MAX_DURATION_DEFAULT = 120;
+const MAX_DURATION_CHEMICAL = 180;
+function isChemicalSelected() {
+  return State.selectedServices.some(id => {
+    const s = State.services.find(x => x.id === id);
+    return s && s.name.toLowerCase().includes('химическ');
+  });
+}
+function maxAllowedDuration() {
+  return isChemicalSelected() ? MAX_DURATION_CHEMICAL : MAX_DURATION_DEFAULT;
+}
+
+// ═══════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════
+const Nav = {
+  go(screen) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + screen).classList.add('active');
+    if (screen === 'home') Home.render();
+    if (screen === 'services') Services.render();
+    if (screen === 'datetime') DateTime.render();
+    if (screen === 'confirm') Confirm.render();
+    if (screen === 'profile') Profile.render();
+    if (screen === 'admin') Admin.render();
+  }
+};
+
+// ═══════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════
+function showToast(msg, dur = 2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+
+// ═══════════════════════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════════════════════
+const Modal = {
+  open(id) { document.getElementById(id).classList.remove('hidden'); },
+  close(id) { document.getElementById(id).classList.add('hidden'); },
+};
+
+// ═══════════════════════════════════════════════════════
+// DATA LOADING
+// ═══════════════════════════════════════════════════════
+async function loadServices() {
+  try {
+    State.services = await SB.get('services?order=name.asc&is_active=eq.true') || [];
+  } catch(e) { State.services = []; }
+}
+
+async function loadSchedule() {
+  try {
+    const rows = await SB.get('schedule') || [];
+    rows.forEach(r => State.schedule[r.day_of_week] = r);
+  } catch(e) {}
+}
+
+async function loadBookings() {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    State.bookings = await SB.get(`bookings?date=gte.${today}&order=date.asc,time.asc&status=neq.cancelled`) || [];
+  } catch(e) { State.bookings = []; }
+}
+
+async function loadAllServices() {
+  try {
+    State.services = await SB.get('services?order=name.asc') || [];
+  } catch(e) { State.services = []; }
+}
+
+// ═══════════════════════════════════════════════════════
+// HOME SCREEN
+// ═══════════════════════════════════════════════════════
+const Home = {
+  async render() {
+    const c = document.getElementById('home-content');
+    c.innerHTML = '<div class="loader"><div class="spinner"></div><br>Загрузка...</div>';
+    await Promise.all([loadServices(), loadSchedule()]);
+
+    // Ближайшие доступные дни
+    const upcoming = this.getUpcomingSlots();
+
+    c.innerHTML = `
+      <div style="text-align:center;padding:20px 0 24px">
+        <div style="font-size:28px;margin-bottom:6px">♛</div>
+        <div style="font-size:22px;color:var(--cream);letter-spacing:2px;margin-bottom:4px">BARBALEO CLUB</div>
+        <div style="font-size:12px;color:var(--muted);letter-spacing:2px">BARBERSHOP</div>
+      </div>
+
+      <button class="btn btn-gold" onclick="Nav.go('services')" style="margin-bottom:20px;font-size:16px;padding:16px">
+        ✂ Записаться
+      </button>
+
+      <div class="sec-title">Ближайшие слоты</div>
+      ${upcoming.length ? upcoming.map(d => `
+        <div class="card" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer"
+             onclick="Booking.quickDate('${d.dateStr}')">
+          <div>
+            <div style="font-size:14px;color:var(--cream)">${d.label}</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">${d.hours}</div>
+          </div>
+          <span style="color:var(--gold);font-size:20px">›</span>
+        </div>
+      `).join('') : '<div class="empty"><div class="empty-icon">📅</div><div class="empty-text">Нет доступных слотов</div></div>'}
+
+      <div class="sec-title">Услуги</div>
+      ${State.services.slice(0,5).map(s => `
+        <div class="svc-item" style="padding:10px 0">
+          <div class="svc-info"><div class="svc-name">${s.name}</div>${s.description ? `<div class="svc-meta">${s.description} · ${s.duration_minutes} мин</div>` : `<div class="svc-meta">${s.duration_minutes} мин</div>`}</div>
+          <div class="svc-price">${s.price.toLocaleString()} ₽</div>
+        </div>
+      `).join('')}
+      ${State.services.length > 5 ? `<div style="text-align:center;padding:10px;font-size:13px;color:var(--muted)">и ещё ${State.services.length - 5} услуг</div>` : ''}
+    `;
+  },
+
+  getUpcomingSlots() {
+    const result = [];
+    const today = new Date();
+    const days = ['вс','пн','вт','ср','чт','пт','сб'];
+    const daysFull = ['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
+    for (let i = 0; i < 7 && result.length < 3; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() + i);
+      const dow = d.getDay();
+      const sched = State.schedule[dow];
+      if (!sched || !sched.is_open) continue;
+      const dateStr = d.toISOString().split('T')[0];
+      const label = i === 0 ? 'Сегодня' : i === 1 ? 'Завтра' : daysFull[dow];
+      result.push({ dateStr, label, hours: `${sched.open_time.slice(0,5)} – ${sched.close_time.slice(0,5)}` });
+    }
+    return result;
+  }
+};
+
+// ═══════════════════════════════════════════════════════
+// BOOKING FLOW
+// ═══════════════════════════════════════════════════════
+const Booking = {
+  quickDate(dateStr) {
+    State.selectedDate = dateStr;
+    Nav.go('services');
+  },
+
+  nextToDate() {
+    if (!State.selectedServices.length) return;
+    Nav.go('datetime');
+  },
+
+  nextToConfirm() {
+    if (!State.selectedDate || !State.selectedTime) return;
+    Nav.go('confirm');
+  },
+
+  toggleService(id) {
+    const idx = State.selectedServices.indexOf(id);
+    if (idx === -1) {
+      // Проверяем лимит перед добавлением
+      const svc = State.services.find(x => x.id === id);
+      if (!svc) return;
+      const newDur = Booking.totalDuration() + svc.duration_minutes;
+      const limit = isChemicalSelected() || (svc.name.toLowerCase().includes('химическ'))
+        ? MAX_DURATION_CHEMICAL : MAX_DURATION_DEFAULT;
+      if (newDur > limit) {
+        showToast(`Максимум ${limit} мин за одну запись`);
+        return;
+      }
+      State.selectedServices.push(id);
+    } else {
+      State.selectedServices.splice(idx, 1);
+    }
+    Services.updateSummary();
+  },
+
+  totalDuration() {
+    return State.selectedServices.reduce((sum, id) => {
+      const s = State.services.find(x => x.id === id);
+      return sum + (s ? s.duration_minutes : 0);
+    }, 0);
+  },
+
+  totalPrice() {
+    return State.selectedServices.reduce((sum, id) => {
+      const s = State.services.find(x => x.id === id);
+      return sum + (s ? s.price : 0);
+    }, 0);
+  },
+
+  async submit(clientName, clientPhone) {
+    const btn = document.getElementById('btn-submit-booking');
+    if (btn) { btn.disabled = true; btn.textContent = 'Сохраняем...'; }
+    try {
+      const services = State.selectedServices.map(id => {
+        const s = State.services.find(x => x.id === id);
+        return { id, name: s.name, price: s.price, duration: s.duration_minutes };
+      });
+
+      const booking = {
+        date: State.selectedDate,
+        time: State.selectedTime,
+        services: services,
+        total_price: this.totalPrice(),
+        total_duration: this.totalDuration(),
+        client_name: clientName,
+        client_phone: clientPhone || null,
+        client_telegram_id: TG_USER ? String(TG_USER.id) : null,
+        client_telegram_username: TG_USER ? TG_USER.username : null,
+        reminder_sent: false,
+        status: 'pending',
+      };
+
+      await SB.post('bookings', booking);
+
+      // Уведомляем бота (мастеру + клиенту если Telegram)
+      try {
+        await fetch(CONFIG.BOT_URL + '/notify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ booking }),
+        });
+      } catch(e) { console.warn('Bot notify failed', e); }
+
+      // Reset state
+      State.selectedServices = [];
+      State.selectedDate = null;
+      State.selectedTime = null;
+
+      const tgNote = TG_USER
+        ? '<br>Напоминание придёт за 3 часа до приёма.'
+        : '';
+
+      document.getElementById('confirm-content').innerHTML = `
+        <div style="text-align:center;padding:40px 20px">
+          <div style="font-size:56px;margin-bottom:16px;color:var(--gold)">✓</div>
+          <div style="font-size:20px;color:var(--gold);margin-bottom:10px;letter-spacing:1px">Вы записаны!</div>
+          <div style="font-size:14px;color:var(--muted);line-height:1.7">
+            Ждём вас в барбершопе.${tgNote}
+          </div>
+          <button class="btn btn-outline" style="margin-top:30px" onclick="Nav.go('home')">На главную</button>
+        </div>
+      `;
+    } catch(e) {
+      showToast('Ошибка при записи. Попробуйте снова.');
+      if (btn) { btn.disabled = false; btn.textContent = 'Подтвердить запись'; }
+    }
+  }
+};
+
+// ═══════════════════════════════════════════════════════
+// SERVICES SCREEN
+// ═══════════════════════════════════════════════════════
+const Services = {
+  render() {
+    const c = document.getElementById('services-content');
+    if (!State.services.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">✂</div><div class="empty-text">Загрузка услуг...</div></div>'; return; }
+
+    // Группируем по отсутствию категорий (одна группа)
+    c.innerHTML = `
+      <div class="sec-title">Выберите услуги</div>
+      <div class="card">
+        ${State.services.map(s => `
+          <div class="svc-item" onclick="Booking.toggleService(${s.id})">
+            <div class="svc-check ${State.selectedServices.includes(s.id) ? 'checked' : ''}" id="chk-${s.id}">
+              <svg viewBox="0 0 12 10"><polyline points="1,5 4.5,9 11,1"/></svg>
+            </div>
+            <div class="svc-info">
+              <div class="svc-name">${s.name}</div>
+              <div class="svc-meta">${s.duration_minutes} мин${s.description ? ' · ' + s.description : ''}</div>
+            </div>
+            <div class="svc-price">${s.price.toLocaleString()} ₽</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    this.updateSummary();
+  },
+
+  updateSummary() {
+    const count = State.selectedServices.length;
+    const btn = document.getElementById('btn-next-date');
+    const sum = document.getElementById('services-summary');
+
+    State.services.forEach(s => {
+      const el = document.getElementById('chk-' + s.id);
+      if (el) el.className = 'svc-check' + (State.selectedServices.includes(s.id) ? ' checked' : '');
+    });
+
+    if (count) {
+      const price = Booking.totalPrice();
+      const dur = Booking.totalDuration();
+      const limit = maxAllowedDuration();
+      document.getElementById('services-total-price').textContent = price.toLocaleString() + ' ₽';
+      document.getElementById('services-total-duration').textContent =
+        `~${dur} мин из ${limit} доступных`;
+      sum.style.display = 'block';
+      btn.disabled = false; btn.style.opacity = 1;
+    } else {
+      sum.style.display = 'none';
+      btn.disabled = true; btn.style.opacity = 0.4;
+    }
+  }
+};
+
+// ═══════════════════════════════════════════════════════
+// DATE/TIME SCREEN
+// ═══════════════════════════════════════════════════════
+const DateTime = {
+  async render() {
+    const c = document.getElementById('datetime-content');
+    c.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
+    await loadSchedule();
+    await loadBookings();
+    this.renderCalendar();
+  },
+
+  renderCalendar() {
+    const c = document.getElementById('datetime-content');
+    const y = State.calYear, m = State.calMonth;
+    const now = new Date();
+    const monthNames = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+    const dayNames = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+
+    const first = new Date(y, m, 1);
+    const lastDay = new Date(y, m + 1, 0).getDate();
+    const startDow = first.getDay();
+
+    let cells = '';
+    for (let i = 0; i < startDow; i++) cells += '<div class="date-cell"></div>';
+    for (let d = 1; d <= lastDay; d++) {
+      const date = new Date(y, m, d);
+      const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const dow = date.getDay();
+      const sched = State.schedule[dow];
+      const isPast = date < new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const isOff = !sched || !sched.is_open;
+      const isToday = dateStr === now.toISOString().split('T')[0];
+      const isSelected = dateStr === State.selectedDate;
+      let cls = 'date-cell';
+      if (isPast) cls += ' past';
+      else if (isOff) cls += ' off';
+      else cls += ' available';
+      if (isToday && !isPast) cls += ' today';
+      if (isSelected) cls += ' selected';
+      const onclick = (!isPast && !isOff) ? `onclick="DateTime.selectDate('${dateStr}')"` : '';
+      cells += `<div class="${cls}" ${onclick}>${d}</div>`;
+    }
+
+    const slots = State.selectedDate ? this.getTimeSlots(State.selectedDate) : '';
+
+    c.innerHTML = `
+      <div class="sec-title">Выберите дату</div>
+      <div class="card">
+        <div class="cal-nav">
+          <button class="cal-nav-btn" onclick="DateTime.prevMonth()">‹</button>
+          <div class="cal-month">${monthNames[m]} ${y}</div>
+          <button class="cal-nav-btn" onclick="DateTime.nextMonth()">›</button>
+        </div>
+        <div class="date-grid">${dayNames.map(d => `<div class="date-label">${d}</div>`).join('')}</div>
+        <div class="date-grid">${cells}</div>
+      </div>
+
+      ${State.selectedDate ? `
+        <div class="sec-title">Выберите время</div>
+        <div class="card">
+          ${slots}
+        </div>
+      ` : ''}
+    `;
+
+    const btn = document.getElementById('btn-next-confirm');
+    if (State.selectedDate && State.selectedTime) { btn.disabled = false; btn.style.opacity = 1; }
+    else { btn.disabled = true; btn.style.opacity = 0.4; }
+  },
+
+  selectDate(dateStr) {
+    State.selectedDate = dateStr;
+    State.selectedTime = null;
+    const btn = document.getElementById('btn-next-confirm');
+    btn.disabled = true; btn.style.opacity = 0.4;
+    this.renderCalendar();
+  },
+
+  getTimeSlots(dateStr) {
+    const date = new Date(dateStr);
+    const dow = date.getDay();
+    const sched = State.schedule[dow];
+    if (!sched || !sched.is_open) return '<div style="color:var(--muted);font-size:13px">Выходной день</div>';
+
+    const dur = Booking.totalDuration() || 60;
+    const [oh, om] = sched.open_time.split(':').map(Number);
+    const [ch, cm] = sched.close_time.split(':').map(Number);
+    const openMin = oh * 60 + om;
+    const closeMin = ch * 60 + cm;
+
+    // Занятые слоты
+    const busy = new Set();
+    State.bookings
+      .filter(b => b.date === dateStr && b.status !== 'cancelled')
+      .forEach(b => {
+        const [bh, bm] = b.time.split(':').map(Number);
+        const start = bh * 60 + bm;
+        for (let t = start; t < start + b.total_duration; t += 30) busy.add(t);
+      });
+
+    const slots = [];
+    for (let t = openMin; t + dur <= closeMin; t += 30) {
+      let isBusy = false;
+      for (let dt = 0; dt < dur; dt += 30) { if (busy.has(t + dt)) { isBusy = true; break; } }
+      const hh = String(Math.floor(t/60)).padStart(2,'0');
+      const mm = String(t%60).padStart(2,'0');
+      const timeStr = `${hh}:${mm}`;
+      slots.push({ timeStr, isBusy });
+    }
+
+    if (!slots.length) return '<div style="color:var(--muted);font-size:13px">Нет доступных слотов</div>';
+
+    return `<div class="time-grid">${slots.map(s => `
+      <div class="time-slot ${s.isBusy ? 'busy' : ''} ${State.selectedTime === s.timeStr ? 'selected' : ''}"
+           onclick="${s.isBusy ? '' : `DateTime.selectTime('${s.timeStr}')`}">
+        ${s.timeStr}
+      </div>
+    `).join('')}</div>`;
+  },
+
+  selectTime(t) {
+    State.selectedTime = t;
+    const btn = document.getElementById('btn-next-confirm');
+    btn.disabled = false; btn.style.opacity = 1;
+    this.renderCalendar();
+  },
+
+  prevMonth() { if (State.calMonth === 0) { State.calMonth = 11; State.calYear--; } else State.calMonth--; this.renderCalendar(); },
+  nextMonth() { if (State.calMonth === 11) { State.calMonth = 0; State.calYear++; } else State.calMonth++; this.renderCalendar(); },
+};
+
+// ═══════════════════════════════════════════════════════
+// CONFIRM SCREEN
+// ═══════════════════════════════════════════════════════
+const Confirm = {
+  render() {
+    const c = document.getElementById('confirm-content');
+    const services = State.selectedServices.map(id => State.services.find(s => s.id === id)).filter(Boolean);
+    const dateObj = new Date(State.selectedDate + 'T00:00:00');
+    const dateFormatted = dateObj.toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' });
+    const prefillName = TG_USER
+      ? (TG_USER.first_name + (TG_USER.last_name ? ' ' + TG_USER.last_name : ''))
+      : '';
+
+    c.innerHTML = `
+      <div class="sec-title">Ваша запись</div>
+      <div class="card gold-border">
+        <div class="summary-row">
+          <span class="summary-label">Дата</span>
+          <span class="summary-val">${dateFormatted}</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Время</span>
+          <span class="summary-val">${State.selectedTime}</span>
+        </div>
+        ${services.map(s => `
+          <div class="summary-row">
+            <span class="summary-label">${s.name}</span>
+            <span class="summary-val">${s.price.toLocaleString()} ₽</span>
+          </div>
+        `).join('')}
+        <div class="summary-row total">
+          <span class="summary-label">Итого</span>
+          <span class="summary-val gold">${Booking.totalPrice().toLocaleString()} ₽</span>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">Длительность: ~${Booking.totalDuration()} мин</div>
+      </div>
+
+      <div class="sec-title" style="margin-top:20px">Ваши данные</div>
+      <div class="card">
+        <div class="field">
+          <label>Имя *</label>
+          <input id="client-name-input" type="text" placeholder="Ваше имя" value="${prefillName}" autocomplete="name">
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label>Телефон *</label>
+          <input id="client-phone-input" type="tel" placeholder="+7 900 000-00-00" autocomplete="tel">
+        </div>
+      </div>
+
+      <button class="btn btn-gold" style="margin-top:16px" id="btn-submit-booking"
+        onclick="Confirm.submit()">
+        Подтвердить запись
+      </button>
+      <button class="btn btn-outline" style="margin-top:8px;margin-bottom:20px" onclick="Nav.go('datetime')">
+        Изменить время
+      </button>
+    `;
+  },
+
+  submit() {
+    const name = document.getElementById('client-name-input')?.value.trim() || '';
+    const phone = document.getElementById('client-phone-input')?.value.trim() || '';
+    if (!name) { showToast('Введите ваше имя'); return; }
+    if (!phone) { showToast('Введите номер телефона'); return; }
+    // Простая проверка телефона — минимум 7 цифр
+    if (phone.replace(/\D/g,'').length < 7) { showToast('Введите корректный телефон'); return; }
+    Booking.submit(name, phone);
+  }
+};
+
+// ═══════════════════════════════════════════════════════
+// PROFILE SCREEN
+// ═══════════════════════════════════════════════════════
+const Profile = {
+  async render() {
+    const c = document.getElementById('profile-content');
+    if (!TG_USER) {
+      c.innerHTML = `
+        <div class="empty" style="padding-top:60px">
+          <div class="empty-icon">◉</div>
+          <div class="empty-text">Откройте приложение через Telegram<br>чтобы увидеть профиль и историю</div>
+        </div>
+      `;
+      return;
+    }
+    c.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
+    try {
+      const bookings = await SB.get(`bookings?client_telegram_id=eq.${TG_USER.id}&order=date.desc,time.desc`) || [];
+      State.userBookings = bookings;
+      const avatar = TG_USER.photo_url ? `<img src="${TG_USER.photo_url}" alt="">` : TG_USER.first_name.charAt(0);
+      const name = TG_USER.first_name + (TG_USER.last_name ? ' ' + TG_USER.last_name : '');
+      const totalSpent = bookings.filter(b => b.status === 'done').reduce((s,b) => s + (b.total_price||0), 0);
+      const doneCount = bookings.filter(b => b.status === 'done').length;
+
+      c.innerHTML = `
+        <div class="profile-avatar">${avatar}</div>
+        <div class="profile-name">${name}</div>
+        <div class="profile-sub">${TG_USER.username ? '@' + TG_USER.username : 'Telegram'}</div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
+          <div class="card" style="text-align:center">
+            <div style="font-size:22px;color:var(--gold);font-weight:700">${doneCount}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">посещений</div>
+          </div>
+          <div class="card" style="text-align:center">
+            <div style="font-size:22px;color:var(--gold);font-weight:700">${totalSpent.toLocaleString()}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">потрачено ₽</div>
+          </div>
+        </div>
+
+        <div class="sec-title">История записей</div>
+        ${bookings.length ? bookings.map(b => {
+          const services = (b.services||[]).map(s => s.name).join(', ');
+          const dateFormatted = new Date(b.date+'T00:00:00').toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
+          const statusMap = {pending:'⏳ Ожидает', done:'✓ Выполнено', cancelled:'✕ Отменено'};
+          const statusBadge = {pending:'badge-pending', done:'badge-done', cancelled:'badge-cancelled'};
+          return `
+            <div class="hist-item">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                <div class="hist-date">${dateFormatted} · ${b.time.slice(0,5)}</div>
+                <span class="badge ${statusBadge[b.status]||'badge-pending'}">${statusMap[b.status]||b.status}</span>
+              </div>
+              <div class="hist-services">${services}</div>
+              <div class="hist-price">${(b.total_price||0).toLocaleString()} ₽</div>
+            </div>
+          `;
+        }).join('') : '<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Записей пока нет</div></div>'}
+      `;
+    } catch(e) {
+      c.innerHTML = '<div class="empty"><div class="empty-text">Ошибка загрузки</div></div>';
+    }
+  }
+};
+
+// ═══════════════════════════════════════════════════════
+// ADMIN
+// ═══════════════════════════════════════════════════════
+const Admin = {
+  async render() {
+    State.adminTab = State.adminTab || 'bookings';
+    await this.renderTab(State.adminTab);
+  },
+
+  tab(name, btn) {
+    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    State.adminTab = name;
+    this.renderTab(name);
+  },
+
+  async renderTab(name) {
+    const c = document.getElementById('admin-content');
+    c.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
+    if (name === 'bookings') await this.renderBookings();
+    if (name === 'services') await this.renderServices();
+    if (name === 'schedule') await this.renderSchedule();
+  },
+
+  async renderBookings() {
+    const c = document.getElementById('admin-content');
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const all = await SB.get(`bookings?date=gte.${today}&order=date.asc,time.asc`) || [];
+      State.bookings = all;
+
+      const byDate = {};
+      all.forEach(b => {
+        if (!byDate[b.date]) byDate[b.date] = [];
+        byDate[b.date].push(b);
+      });
+
+      c.innerHTML = `
+        <button class="btn btn-outline" style="margin-bottom:16px" onclick="Admin.openManualBooking()">
+          + Ручная запись
+        </button>
+        ${Object.keys(byDate).length ? Object.entries(byDate).map(([date, bks]) => {
+          const df = new Date(date+'T00:00:00').toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});
+          return `
+            <div class="sec-title">${df}</div>
+            ${bks.map(b => {
+              const svcs = (b.services||[]).map(s => s.name).join(', ');
+              const statusBadge = {pending:'badge-pending', done:'badge-done', cancelled:'badge-cancelled'};
+              return `
+                <div class="booking-card ${b.status}">
+                  <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                    <div class="booking-time">${b.time.slice(0,5)} · ${b.total_duration} мин</div>
+                    <span class="badge ${statusBadge[b.status]||'badge-pending'}">${b.status==='pending'?'Ожидает':b.status==='done'?'Готово':'Отменено'}</span>
+                  </div>
+                  <div class="booking-client">${b.client_name || 'Клиент'}${b.client_telegram_username ? ' @'+b.client_telegram_username : ''}${b.client_phone ? ' · ' + b.client_phone : ''}</div>
+                  <div class="booking-services">${svcs}</div>
+                  <div style="font-size:13px;color:var(--gold);margin-top:4px">${(b.total_price||0).toLocaleString()} ₽</div>
+                  ${b.status === 'pending' ? `
+                    <div class="booking-actions">
+                      <button class="btn btn-sm" style="background:rgba(39,174,96,0.15);color:#27AE60;border:1px solid rgba(39,174,96,0.3);border-radius:6px;flex:1"
+                        onclick="Admin.setStatus(${b.id},'done')">✓ Выполнено</button>
+                      <button class="btn btn-sm" style="background:rgba(192,57,43,0.15);color:#C0392B;border:1px solid rgba(192,57,43,0.3);border-radius:6px;flex:1"
+                        onclick="Admin.setStatus(${b.id},'cancelled')">✕ Отменить</button>
+                    </div>
+                  ` : ''}
+                </div>
+              `;
+            }).join('')}
+          `;
+        }).join('') : '<div class="empty"><div class="empty-icon">📅</div><div class="empty-text">Нет записей</div></div>'}
+      `;
+    } catch(e) { c.innerHTML = '<div class="empty"><div class="empty-text">Ошибка загрузки</div></div>'; }
+  },
+
+  async setStatus(id, status) {
+    try {
+      await SB.patch(`bookings?id=eq.${id}`, { status });
+      showToast(status === 'done' ? 'Отмечено выполненным' : 'Запись отменена');
+      this.renderBookings();
+    } catch(e) { showToast('Ошибка'); }
+  },
+
+  async renderServices() {
+    const c = document.getElementById('admin-content');
+    await loadAllServices();
+    c.innerHTML = `
+      <button class="btn btn-outline" style="margin-bottom:16px" onclick="Admin.openServiceModal()">
+        + Добавить услугу
+      </button>
+      ${State.services.map(s => `
+        <div class="card" style="display:flex;align-items:center;gap:12px">
+          <div style="flex:1">
+            <div style="font-size:14px;color:var(--cream)">${s.name}</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">${s.duration_minutes} мин · ${s.is_active ? 'Активна' : 'Скрыта'}</div>
+          </div>
+          <div style="font-size:15px;color:var(--gold);font-weight:700;margin-right:8px">${s.price.toLocaleString()} ₽</div>
+          <button class="btn-icon" onclick="Admin.openServiceModal(${s.id})">✎</button>
+          <button class="btn-icon" style="color:var(--danger)" onclick="Admin.toggleActive(${s.id},${s.is_active})">${s.is_active ? '◉' : '○'}</button>
+        </div>
+      `).join('')}
+    `;
+  },
+
+  openServiceModal(id) {
+    const s = id ? State.services.find(x => x.id === id) : null;
+    document.getElementById('modal-service-title').textContent = s ? 'Редактировать' : 'Новая услуга';
+    document.getElementById('svc-edit-id').value = s ? s.id : '';
+    document.getElementById('svc-name').value = s ? s.name : '';
+    document.getElementById('svc-price').value = s ? s.price : '';
+    document.getElementById('svc-duration').value = s ? s.duration_minutes : '';
+    document.getElementById('svc-desc').value = s ? (s.description||'') : '';
+    Modal.open('modal-service');
+  },
+
+  async saveService() {
+    const id = document.getElementById('svc-edit-id').value;
+    const name = document.getElementById('svc-name').value.trim();
+    const price = parseInt(document.getElementById('svc-price').value);
+    const duration = parseInt(document.getElementById('svc-duration').value);
+    const desc = document.getElementById('svc-desc').value.trim();
+    if (!name || !price || !duration) { showToast('Заполните все поля'); return; }
+    try {
+      if (id) await SB.patch(`services?id=eq.${id}`, { name, price, duration_minutes: duration, description: desc });
+      else await SB.post('services', { name, price, duration_minutes: duration, description: desc, is_active: true });
+      Modal.close('modal-service');
+      showToast('Сохранено');
+      this.renderServices();
+    } catch(e) { showToast('Ошибка сохранения'); }
+  },
+
+  async toggleActive(id, current) {
+    try {
+      await SB.patch(`services?id=eq.${id}`, { is_active: !current });
+      this.renderServices();
+    } catch(e) { showToast('Ошибка'); }
+  },
+
+  async renderSchedule() {
+    const c = document.getElementById('admin-content');
+    await loadSchedule();
+    const dayNames = ['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
+    c.innerHTML = `
+      <div class="card">
+        ${[1,2,3,4,5,6,0].map(dow => {
+          const s = State.schedule[dow] || { is_open: false, open_time: '09:00', close_time: '21:00' };
+          return `
+            <div class="day-toggle" id="day-row-${dow}">
+              <span class="day-name">${dayNames[dow].slice(0,3)}</span>
+              <div class="toggle-wrap">
+                <div class="toggle ${s.is_open ? 'on' : ''}" onclick="Admin.toggleDay(${dow})" id="toggle-${dow}"></div>
+                <div class="time-range" id="time-range-${dow}" style="${s.is_open ? '' : 'opacity:0.3;pointer-events:none'}">
+                  <input class="time-input" type="time" value="${s.open_time}" id="open-${dow}" onchange="Admin.saveScheduleDay(${dow})">
+                  <span style="color:var(--muted);font-size:12px">–</span>
+                  <input class="time-input" type="time" value="${s.close_time}" id="close-${dow}" onchange="Admin.saveScheduleDay(${dow})">
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+      <div style="padding-top:4px">
+        <button class="btn btn-gold" onclick="Admin.saveAllSchedule()">Сохранить график</button>
+      </div>
+    `;
+  },
+
+  toggleDay(dow) {
+    const t = document.getElementById('toggle-' + dow);
+    const r = document.getElementById('time-range-' + dow);
+    t.classList.toggle('on');
+    const isOn = t.classList.contains('on');
+    r.style.opacity = isOn ? 1 : 0.3;
+    r.style.pointerEvents = isOn ? '' : 'none';
+  },
+
+  async saveAllSchedule() {
+    try {
+      for (const dow of [0,1,2,3,4,5,6]) {
+        const t = document.getElementById('toggle-' + dow);
+        if (!t) continue;
+        const isOpen = t.classList.contains('on');
+        const open = document.getElementById('open-' + dow)?.value || '09:00';
+        const close = document.getElementById('close-' + dow)?.value || '21:00';
+        const existing = State.schedule[dow];
+        if (existing?.id) {
+          await SB.patch(`schedule?id=eq.${existing.id}`, { is_open: isOpen, open_time: open+':00', close_time: close+':00' });
+        } else {
+          await SB.post('schedule', { day_of_week: dow, is_open: isOpen, open_time: open+':00', close_time: close+':00' });
+        }
+      }
+      showToast('График сохранён ✓');
+      await loadSchedule();
+    } catch(e) { showToast('Ошибка сохранения'); }
+  },
+
+  async saveScheduleDay(dow) { /* auto-save on time change */ },
+
+  async openManualBooking() {
+    await loadAllServices();
+    const list = document.getElementById('manual-services-list');
+    list.innerHTML = State.services.filter(s => s.is_active).map(s => `
+      <div class="svc-item" onclick="this.querySelector('.svc-check').classList.toggle('checked')">
+        <div class="svc-check" data-svc-id="${s.id}">
+          <svg viewBox="0 0 12 10"><polyline points="1,5 4.5,9 11,1"/></svg>
+        </div>
+        <div class="svc-info"><div class="svc-name">${s.name}</div></div>
+        <div class="svc-price">${s.price.toLocaleString()} ₽</div>
+      </div>
+    `).join('');
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('manual-date').value = today;
+    document.getElementById('manual-time').value = '10:00';
+    document.getElementById('manual-client-name').value = '';
+    document.getElementById('manual-client-phone').value = '';
+    Modal.open('modal-manual-booking');
+  },
+
+  async saveManualBooking() {
+    const clientName = document.getElementById('manual-client-name').value.trim();
+    const date = document.getElementById('manual-date').value;
+    const time = document.getElementById('manual-time').value;
+    if (!clientName || !date || !time) { showToast('Заполните поля'); return; }
+
+    const checked = document.querySelectorAll('#manual-services-list .svc-check.checked');
+    if (!checked.length) { showToast('Выберите услуги'); return; }
+
+    const services = Array.from(checked).map(el => {
+      const id = parseInt(el.dataset.svcId);
+      const s = State.services.find(x => x.id === id);
+      return { id, name: s.name, price: s.price, duration: s.duration_minutes };
+    });
+
+    const totalPrice = services.reduce((s, x) => s + x.price, 0);
+    const totalDuration = services.reduce((s, x) => s + x.duration, 0);
+
+    try {
+      await SB.post('bookings', {
+        date, time: time + ':00', services, total_price: totalPrice,
+        total_duration: totalDuration, client_name: clientName,
+        client_phone: document.getElementById('manual-client-phone').value.trim() || null,
+        client_telegram_id: null, reminder_sent: false, status: 'pending',
+      });
+      Modal.close('modal-manual-booking');
+      showToast('Запись добавлена ✓');
+      this.renderBookings();
+    } catch(e) { showToast('Ошибка'); }
+  },
+};
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+async function init() {
+  // Проверяем — открыта ли через Telegram и является ли пользователь админом
+  if (TG_USER && TG_USER.id === CONFIG.ADMIN_TELEGRAM_ID) {
+    // Если открыто с параметром admin
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('admin') === '1' || (TG?.initDataUnsafe?.start_param === 'admin')) {
+      Nav.go('admin');
+      return;
+    }
+  }
+  Home.render();
+}
+
+init();
+</script>
+</body>
+</html>
