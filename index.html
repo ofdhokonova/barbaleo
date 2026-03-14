@@ -379,7 +379,7 @@ const S = {
   selBarber: null, selSvcs: [], selDate: null, selTime: null,
   calY: new Date().getFullYear(), calM: new Date().getMonth(),
   schY: new Date().getFullYear(), schM: new Date().getMonth(),
-  schedSelBarber: null,
+  schedSelBarber: null, barberSvcs: null,
   adminTab: 'bookings', adminSelDate: null, adminSelBarber: null,
   currentBarber: null, barberPanelDate: null,
   manualSelBarber: null, manualSelSvcs: [], manualSelDate: null, manualSelTime: null,
@@ -462,6 +462,12 @@ async function loadDaysOff(barberId) {
   S.daysOff = {};
   rows.forEach(r => S.daysOff[r.date] = r.id);
 }
+async function loadBarberServices(barberId) {
+  try {
+    const rows = await SB.get(`barber_services?barber_id=eq.${barberId}`) || [];
+    S.barberSvcs = new Set(rows.map(r => r.service_id));
+  } catch(e) { S.barberSvcs = null; } // null = таблица не существует, показывать все
+}
 
 // ── NAV ──────────────────────────────────────
 const Nav = {
@@ -520,7 +526,7 @@ const BarberPick = {
     S.selBarber = S.barbers.find(b => b.id === id);
     S.selSvcs = []; S.selDate = null; S.selTime = null;
     document.getElementById('svc-screen-title').textContent = S.selBarber.name;
-    await loadSvcs();
+    await Promise.all([loadSvcs(), loadBarberServices(id)]);
     Nav.go('services');
   }
 };
@@ -570,10 +576,11 @@ const Services = {
   render() {
     const c = document.getElementById('services-content');
     if (!S.services.length) { c.innerHTML='<div class="loader"><div class="spinner"></div></div>'; loadSvcs().then(()=>this.render()); return; }
+    const svcs = S.barberSvcs ? S.services.filter(s => S.barberSvcs.has(s.id)) : S.services;
     c.innerHTML = `
       <div class="sec-title">Выберите услуги</div>
       <div class="card">
-        ${S.services.map(s=>`
+        ${svcs.map(s=>`
           <div class="svc-item" onclick="Booking.toggleSvc(${s.id})">
             <div class="svc-check ${S.selSvcs.includes(s.id)?'checked':''}" id="chk-${s.id}"><svg viewBox="0 0 12 10"><polyline points="1,5 4.5,9 11,1"/></svg></div>
             <div class="svc-info"><div class="svc-name">${s.name}</div><div class="svc-meta">${s.duration_minutes} мин${s.description?' · '+s.description:''}</div></div>
@@ -1093,9 +1100,38 @@ const Admin = {
             </div>
           </div>`;}).join('')}
       </div>
-      <div style="padding-top:10px"><button class="btn btn-gold" onclick="Admin.saveSched(${selBid})">Сохранить</button></div>`;
+      <div style="padding-top:10px"><button class="btn btn-gold" onclick="Admin.saveSched(${selBid})">Сохранить график</button></div>
+
+      <div class="sec-title">Услуги — ${selBarber?.name}</div>
+      <div class="card" id="barber-svcs-card-${selBid}">
+        <div class="loader"><div class="spinner"></div></div>
+      </div>`;
+    Admin.loadBarberSvcsUI(selBid, `barber-svcs-card-${selBid}`);
   },
   schedSelectBarber(bid){S.schedSelBarber=bid;this.renderSchedule();},
+  async loadBarberSvcsUI(barberId, containerId){
+    const el=document.getElementById(containerId);if(!el)return;
+    try{
+      await loadSvcs(true);
+      const rows=await SB.get(`barber_services?barber_id=eq.${barberId}`)||[];
+      const enabled=new Set(rows.map(r=>r.service_id));
+      el.innerHTML=S.services.map(s=>`
+        <div class="svc-item" onclick="Admin.toggleBarberSvc(${barberId},${s.id},${enabled.has(s.id)},'${containerId}')">
+          <div class="svc-check ${enabled.has(s.id)?'checked':''}" id="bsvc-${barberId}-${s.id}"><svg viewBox="0 0 12 10"><polyline points="1,5 4.5,9 11,1"/></svg></div>
+          <div class="svc-info"><div class="svc-name">${s.name}</div><div class="svc-meta">${s.price.toLocaleString()} ₽ · ${s.duration_minutes} мин</div></div>
+        </div>`).join('');
+    }catch(e){if(el)el.innerHTML='<div style="font-size:12px;color:var(--muted);padding:8px">Создайте таблицу barber_services в Supabase</div>';}
+  },
+  async toggleBarberSvc(barberId, serviceId, isEnabled, containerId){
+    try{
+      if(isEnabled){
+        await SB.delete(`barber_services?barber_id=eq.${barberId}&service_id=eq.${serviceId}`);
+      } else {
+        await SB.post('barber_services',{barber_id:barberId,service_id:serviceId});
+      }
+      await this.loadBarberSvcsUI(barberId, containerId);
+    }catch(e){showToast('Ошибка');}
+  },
   async toggleDayOff(ds,barberId){
     try{
       if(S.daysOff[ds]){await SB.delete(`days_off?date=eq.${ds}&barber_id=eq.${barberId}`);delete S.daysOff[ds];showToast('Выходной снят');}
@@ -1453,7 +1489,12 @@ const Admin = {
             </div>
           </div>`;}).join('')}
       </div>
-      <div style="padding-top:10px"><button class="btn btn-gold" onclick="Admin.saveSched(${barberId})">Сохранить</button></div>`;
+      <div style="padding-top:10px"><button class="btn btn-gold" onclick="Admin.saveSched(${barberId})">Сохранить</button></div>
+      <div class="sec-title">Мои услуги</div>
+      <div class="card" id="barber-svcs-card-bp-${barberId}">
+        <div class="loader"><div class="spinner"></div></div>
+      </div>`;
+    Admin.loadBarberSvcsUI(barberId, `barber-svcs-card-bp-${barberId}`);
   },
 };
 
