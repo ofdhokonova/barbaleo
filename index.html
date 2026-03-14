@@ -1092,7 +1092,7 @@ const Admin = {
     try{
       if(S.daysOff[ds]){await SB.delete(`days_off?date=eq.${ds}&barber_id=eq.${barberId}`);delete S.daysOff[ds];showToast('Выходной снят');}
       else{const r=await SB.post('days_off',{date:ds,barber_id:barberId});S.daysOff[ds]=r?.[0]?.id||ds;showToast('Выходной добавлен');}
-      this.renderSchedule();
+      if(S.currentBarber&&document.getElementById('screen-barber-panel').classList.contains('active'))BarberPanel.renderTab('schedule');else this.renderSchedule();
     }catch(e){showToast('Ошибка');}
   },
   schPrev(){if(S.schM===0){S.schM=11;S.schY--;}else S.schM--;if(S.currentBarber&&document.getElementById('screen-barber-panel').classList.contains('active'))BarberPanel.renderTab('schedule');else this.renderSchedule();},
