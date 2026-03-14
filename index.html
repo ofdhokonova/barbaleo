@@ -355,7 +355,7 @@ async function loadSched() {
   rows.forEach(r => S.schedule[r.day_of_week] = r);
 }
 async function loadBookings() {
-  S.bookings = await SB.get(`bookings?date=gte.${todayStr()}&order=date.asc,time.asc`) || [];
+  S.bookings = await SB.get(`bookings?date=gte.${todayStr()}&status=neq.cancelled&order=date.asc,time.asc`) || [];
 }
 async function loadDaysOff() {
   const rows = await SB.get(`days_off?date=gte.${todayStr()}`) || []; S.daysOff = {};
