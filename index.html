@@ -717,9 +717,9 @@ const Admin = {
         timeSlots.push(t);
       }
 
-      // Группируем записи по дате и времени
+      // Группируем записи по дате и времени (только не отменённые)
       const bookingMap = {}; // dateStr -> timeMin -> booking
-      S.bookings.forEach(b => {
+      S.bookings.filter(b => b.status !== 'cancelled').forEach(b => {
         if (!bookingMap[b.date]) bookingMap[b.date] = {};
         const tMin = timeToMin(b.time);
         bookingMap[b.date][tMin] = b;
