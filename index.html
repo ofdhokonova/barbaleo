@@ -227,17 +227,44 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 </div>
 
 <div class="modal-overlay hidden" id="modal-manual">
-  <div class="modal">
+  <div class="modal" style="max-height:92vh">
     <div class="modal-title">Ручная запись</div>
-    <div class="field"><label>Имя клиента</label><input id="m-name" type="text" placeholder="Имя"></div>
-    <div class="field"><label>Телефон</label><input id="m-phone" type="tel" placeholder="+7..."></div>
-    <div class="field"><label>Дата</label><input id="m-date" type="date"></div>
-    <div class="field"><label>Время</label><input id="m-time" type="time"></div>
-    <div class="field"><label>Услуги</label><div id="m-svc-list"></div></div>
-    <div style="display:flex;gap:10px;margin-top:6px">
-      <button class="btn btn-outline" style="flex:1;padding:12px" onclick="Modal.close('modal-manual')">Отмена</button>
-      <button class="btn btn-gold" style="flex:1;padding:12px" onclick="Admin.saveManual()">Записать</button>
+
+    <!-- ШАГ 1: имя + телефон -->
+    <div id="manual-step1">
+      <div class="field"><label>Имя клиента *</label><input id="m-name" type="text" placeholder="Имя клиента" autocomplete="name"></div>
+      <div class="field"><label>Телефон *</label><input id="m-phone" type="tel" placeholder="+7 900 000-00-00" autocomplete="tel"></div>
+      <button class="btn btn-gold" style="margin-top:4px" onclick="Admin.manualStep2()">Далее → Выбор услуг</button>
+      <button class="btn btn-outline" style="margin-top:8px" onclick="Modal.close('modal-manual')">Отмена</button>
     </div>
+
+    <!-- ШАГ 2: услуги -->
+    <div id="manual-step2" style="display:none">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Выберите услуги</div>
+      <div id="m-svc-list"></div>
+      <div id="m-svc-summary" style="display:none;margin-top:10px;padding:10px;background:var(--bg4);border-radius:var(--rs)">
+        <div style="display:flex;justify-content:space-between">
+          <span style="font-size:13px;color:var(--muted)">Итого</span>
+          <span style="font-size:13px;color:var(--gold);font-weight:600" id="m-svc-total">0 ₽</span>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px" id="m-svc-dur"></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn btn-outline" style="flex:1;padding:12px" onclick="Admin.manualBack(1)">‹ Назад</button>
+        <button class="btn btn-gold" style="flex:1;padding:12px" id="m-btn-step3" disabled style="opacity:0.4" onclick="Admin.manualStep3()">Выбрать дату →</button>
+      </div>
+    </div>
+
+    <!-- ШАГ 3: дата + время -->
+    <div id="manual-step3" style="display:none">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Выберите дату и время</div>
+      <div id="m-cal"></div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn btn-outline" style="flex:1;padding:12px" onclick="Admin.manualBack(2)">‹ Назад</button>
+        <button class="btn btn-gold" style="flex:1;padding:12px" id="m-btn-save" disabled style="opacity:0.4" onclick="Admin.saveManual()">Записать</button>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -276,7 +303,9 @@ const S = {
   selSvcs: [], selDate: null, selTime: null,
   calY: new Date().getFullYear(), calM: new Date().getMonth(),
   schY: new Date().getFullYear(), schM: new Date().getMonth(),
-  adminTab: 'bookings',
+  adminTab: 'bookings', adminSelDate: null,
+  manualSelSvcs: [], manualSelDate: null, manualSelTime: null,
+  manualCalY: new Date().getFullYear(), manualCalM: new Date().getMonth(),
 };
 
 // ── UTILS ─────────────────────────────────────
@@ -620,61 +649,293 @@ const Admin = {
   async renderBookings() {
     const c=document.getElementById('admin-content');
     try {
-      await loadBookings();
-      const byDate={};
-      S.bookings.forEach(b=>{if(!byDate[b.date])byDate[b.date]=[];byDate[b.date].push(b);});
-      const sb={pending:'badge-pending',done:'badge-done',cancelled:'badge-cancelled'};
-      c.innerHTML=`
-        <button class="btn btn-outline" style="margin-bottom:16px" onclick="Admin.openManual()">+ Ручная запись</button>
-        ${Object.keys(byDate).length?Object.entries(byDate).map(([date,bks])=>`
-          <div class="sec-title">${new Date(date+'T12:00:00').toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'})}</div>
-          ${bks.map(b=>`
-            <div class="booking-card ${b.status}">
-              <div style="display:flex;justify-content:space-between;align-items:flex-start">
-                <div class="booking-time">${b.time.slice(0,5)} · ${b.total_duration} мин</div>
-                <span class="badge ${sb[b.status]||'badge-pending'}">${b.status==='pending'?'Ожидает':b.status==='done'?'Готово':'Отменено'}</span>
-              </div>
-              <div class="booking-client">${b.client_name||'Клиент'}${b.client_phone?' · '+b.client_phone:''}${b.client_telegram_username?' @'+b.client_telegram_username:''}</div>
-              <div class="booking-services">${(b.services||[]).map(s=>s.name).join(', ')}</div>
-              <div style="font-size:13px;color:var(--gold);margin-top:4px">${(b.total_price||0).toLocaleString()} ₽</div>
-              ${b.status==='pending'?`
-                <div class="booking-actions">
-                  <button class="btn btn-sm" style="background:rgba(39,174,96,0.15);color:#27AE60;border:1px solid rgba(39,174,96,0.3);border-radius:6px;flex:1" onclick="Admin.setStatus(${b.id},'done')">✓ Выполнено</button>
-                  <button class="btn btn-sm" style="background:rgba(192,57,43,0.15);color:#C0392B;border:1px solid rgba(192,57,43,0.3);border-radius:6px;flex:1" onclick="Admin.setStatus(${b.id},'cancelled')">✕ Отменить</button>
-                </div>`:''}
-            </div>`).join('')}`).join(''):'<div class="empty"><div class="empty-icon">📅</div><div class="empty-text">Нет записей</div></div>'}`;
-    } catch(e){document.getElementById('admin-content').innerHTML='<div class="empty"><div class="empty-text">Ошибка</div></div>';}
+      await Promise.all([loadBookings(), loadSched(), loadDaysOff()]);
+
+      // Неделя начиная с сегодня
+      const today = new Date();
+      const weekDates = [];
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i);
+        weekDates.push(localDateStr(d));
+      }
+
+      // Рабочие часы (берём из расписания — начало и конец дня)
+      const allScheds = Object.values(S.schedule).filter(s => s.is_open);
+      const globalOpen = allScheds.length ? Math.min(...allScheds.map(s => timeToMin(s.open_time))) : 9*60;
+      const globalClose = allScheds.length ? Math.max(...allScheds.map(s => timeToMin(s.close_time))) : 21*60;
+
+      // Временные слоты с шагом 30 мин
+      const timeSlots = [];
+      for (let t = globalOpen; t < globalClose; t += 30) {
+        timeSlots.push(t);
+      }
+
+      // Группируем записи по дате и времени
+      const bookingMap = {}; // dateStr -> timeMin -> booking
+      S.bookings.forEach(b => {
+        if (!bookingMap[b.date]) bookingMap[b.date] = {};
+        const tMin = timeToMin(b.time);
+        bookingMap[b.date][tMin] = b;
+      });
+
+      const dayNames = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+      const today_s = todayStr();
+
+      // Строим HTML недели
+      let weekHtml = `
+        <div style="display:flex;gap:4px;margin-bottom:16px;overflow-x:auto">
+          ${weekDates.map(ds => {
+            const d = new Date(ds+'T12:00:00');
+            const dow = d.getDay();
+            const isToday = ds === today_s;
+            const off = isOff(ds);
+            const dayBookings = S.bookings.filter(b => b.date === ds && b.status !== 'cancelled');
+            const cnt = dayBookings.length;
+            return `
+              <div onclick="Admin.showDayDetail('${ds}')" style="flex:1;min-width:42px;text-align:center;padding:8px 4px;border-radius:var(--rs);cursor:pointer;background:${isToday?'var(--gold-dim)':'var(--bg3)'};border:1px solid ${isToday?'var(--gold)':'var(--bg5)'};transition:all .15s">
+                <div style="font-size:10px;color:var(--muted);margin-bottom:2px">${dayNames[dow]}</div>
+                <div style="font-size:15px;color:${isToday?'var(--gold)':off?'var(--muted)':'var(--cream)'};font-weight:${isToday?700:400}">${d.getDate()}</div>
+                ${cnt > 0 ? `<div style="width:6px;height:6px;border-radius:50%;background:var(--gold);margin:3px auto 0"></div>` : '<div style="height:9px"></div>'}
+              </div>`;
+          }).join('')}
+        </div>`;
+
+      // Детальный вид выбранного дня (по умолчанию сегодня)
+      if (!S.adminSelDate) S.adminSelDate = today_s;
+      weekHtml += this.buildDayView(S.adminSelDate, timeSlots, bookingMap);
+
+      c.innerHTML = `
+        <button class="btn btn-outline" style="margin-bottom:12px" onclick="Admin.openManual()">+ Ручная запись</button>
+        ${weekHtml}`;
+
+    } catch(e) { document.getElementById('admin-content').innerHTML='<div class="empty"><div class="empty-text">Ошибка</div></div>'; }
   },
+
+  buildDayView(dateStr, timeSlots, bookingMap) {
+    const d = new Date(dateStr+'T12:00:00');
+    const dow = d.getDay();
+    const sched = S.schedule[dow];
+    const df = d.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});
+    const off = isOff(dateStr);
+    const dayMap = bookingMap[dateStr] || {};
+    const sb={pending:'badge-pending',done:'badge-done',cancelled:'badge-cancelled'};
+    const sm={pending:'Ожидает',done:'Готово',cancelled:'Отменено'};
+
+    if (off) return `<div class="sec-title">${df}</div><div class="card"><div style="text-align:center;color:var(--muted);padding:16px">Выходной день</div></div>`;
+
+    const openMin = sched ? timeToMin(sched.open_time) : 9*60;
+    const closeMin = sched ? timeToMin(sched.close_time) : 21*60;
+
+    // Строим сетку слотов
+    let slotsHtml = '';
+    const usedBookings = new Set(); // чтобы не дублировать карточки
+
+    for (let t = openMin; t < closeMin; t += 30) {
+      const hh = String(Math.floor(t/60)).padStart(2,'0');
+      const mm = String(t%60).padStart(2,'0');
+      const timeStr = `${hh}:${mm}`;
+      const bk = dayMap[t];
+
+      if (bk && !usedBookings.has(bk.id)) {
+        usedBookings.add(bk.id);
+        const svcs = (bk.services||[]).map(s=>s.name).join(', ');
+        const blocks = Math.ceil((bk.total_duration||30)/30);
+        slotsHtml += `
+          <div style="display:flex;gap:8px;margin-bottom:6px;align-items:flex-start">
+            <div style="font-size:12px;color:var(--gold);width:38px;flex-shrink:0;padding-top:10px;font-weight:600">${timeStr}</div>
+            <div class="booking-card ${bk.status}" style="flex:1;margin-bottom:0;cursor:pointer" onclick="Admin.toggleBookingDetail(${bk.id})">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <div class="booking-time" style="margin-bottom:0">${bk.time.slice(0,5)} · ${bk.total_duration} мин</div>
+                <span class="badge ${sb[bk.status]||'badge-pending'}">${sm[bk.status]||bk.status}</span>
+              </div>
+              <div class="booking-client" style="margin-top:4px">${bk.client_name||'Клиент'}${bk.client_phone?' · '+bk.client_phone:''}</div>
+              <div id="bk-detail-${bk.id}" style="display:none">
+                <div class="booking-services" style="margin-top:4px">${svcs}</div>
+                <div style="font-size:13px;color:var(--gold);margin-top:4px">${(bk.total_price||0).toLocaleString()} ₽</div>
+                ${bk.status==='pending'?`
+                  <div class="booking-actions">
+                    <button class="btn btn-sm" style="background:rgba(39,174,96,0.15);color:#27AE60;border:1px solid rgba(39,174,96,0.3);border-radius:6px;flex:1" onclick="event.stopPropagation();Admin.setStatus(${bk.id},'done')">✓ Выполнено</button>
+                    <button class="btn btn-sm" style="background:rgba(192,57,43,0.15);color:#C0392B;border:1px solid rgba(192,57,43,0.3);border-radius:6px;flex:1" onclick="event.stopPropagation();Admin.setStatus(${bk.id},'cancelled')">✕ Отменить</button>
+                  </div>`:''}
+              </div>
+            </div>
+          </div>`;
+        // Пропускаем занятые блоки
+        t += (blocks - 1) * 30;
+      } else if (!bk) {
+        slotsHtml += `
+          <div style="display:flex;gap:8px;margin-bottom:6px;align-items:center">
+            <div style="font-size:12px;color:var(--muted);width:38px;flex-shrink:0">${timeStr}</div>
+            <div style="flex:1;height:32px;border:1px dashed var(--bg5);border-radius:var(--rs);cursor:pointer;display:flex;align-items:center;padding:0 10px;font-size:12px;color:var(--bg5);transition:all .15s" onmouseover="this.style.borderColor='var(--gold-dark)';this.style.color='var(--muted)'" onmouseout="this.style.borderColor='var(--bg5)';this.style.color='var(--bg5)'" onclick="Admin.openManualAt('${dateStr}','${timeStr}')">свободно</div>
+          </div>`;
+      }
+    }
+
+    return `
+      <div class="sec-title">${df}</div>
+      <div style="background:var(--bg3);border:1px solid var(--bg5);border-radius:var(--r);padding:12px">
+        ${slotsHtml || '<div style="text-align:center;color:var(--muted);padding:16px;font-size:13px">Нет записей</div>'}
+      </div>`;
+  },
+
+  showDayDetail(dateStr) {
+    S.adminSelDate = dateStr;
+    this.renderBookings();
+  },
+
+  toggleBookingDetail(id) {
+    const el = document.getElementById('bk-detail-'+id);
+    if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+  },
+
+  openManualAt(date, time) {
+    this.openManual(date, time);
+  },
+
   async setStatus(id,status) {
     try{await SB.patch(`bookings?id=eq.${id}`,{status});showToast(status==='done'?'Выполнено ✓':'Отменено');this.renderBookings();}
     catch(e){showToast('Ошибка');}
   },
-  async openManual() {
-    await loadSvcs(true);
-    document.getElementById('m-svc-list').innerHTML=S.services.filter(s=>s.is_active).map(s=>`
-      <div class="svc-item" onclick="this.querySelector('.svc-check').classList.toggle('checked')">
-        <div class="svc-check" data-id="${s.id}"><svg viewBox="0 0 12 10"><polyline points="1,5 4.5,9 11,1"/></svg></div>
-        <div class="svc-info"><div class="svc-name">${s.name}</div></div>
-        <div class="svc-price">${s.price.toLocaleString()} ₽</div>
-      </div>`).join('');
-    document.getElementById('m-date').value=todayStr();
-    document.getElementById('m-time').value='10:00';
-    document.getElementById('m-name').value='';
-    document.getElementById('m-phone').value='';
+
+  async openManual(preDate, preTime) {
+    S.manualSelSvcs = [];
+    S.manualSelDate = preDate || null;
+    S.manualSelTime = preTime || null;
+    S.manualCalY = new Date().getFullYear();
+    S.manualCalM = new Date().getMonth();
+    await Promise.all([loadSvcs(true), loadBookings(), loadSched(), loadDaysOff()]);
+    document.getElementById('manual-step1').style.display = 'block';
+    document.getElementById('manual-step2').style.display = 'none';
+    document.getElementById('manual-step3').style.display = 'none';
+    document.getElementById('m-name').value = '';
+    document.getElementById('m-phone').value = '';
     Modal.open('modal-manual');
   },
+
+  manualStep2() {
+    const name = document.getElementById('m-name').value.trim();
+    const phone = document.getElementById('m-phone').value.trim();
+    if (!name) { showToast('Введите имя'); return; }
+    if (!phone) { showToast('Введите телефон'); return; }
+    if (phone.replace(/\D/g,'').length < 7) { showToast('Некорректный телефон'); return; }
+    S.manualSelSvcs = [];
+    document.getElementById('m-svc-list').innerHTML = S.services.filter(s=>s.is_active).map(s=>`
+      <div class="svc-item" onclick="Admin.manualToggleSvc(${s.id})">
+        <div class="svc-check" id="mchk-${s.id}"><svg viewBox="0 0 12 10"><polyline points="1,5 4.5,9 11,1"/></svg></div>
+        <div class="svc-info"><div class="svc-name">${s.name}</div><div class="svc-meta">${s.duration_minutes} мин</div></div>
+        <div class="svc-price">${s.price.toLocaleString()} ₽</div>
+      </div>`).join('');
+    const btn = document.getElementById('m-btn-step3');
+    btn.disabled = true; btn.style.opacity = 0.4;
+    document.getElementById('m-svc-summary').style.display = 'none';
+    document.getElementById('manual-step1').style.display = 'none';
+    document.getElementById('manual-step2').style.display = 'block';
+  },
+
+  manualToggleSvc(id) {
+    const i = S.manualSelSvcs.indexOf(id);
+    if (i===-1) S.manualSelSvcs.push(id); else S.manualSelSvcs.splice(i,1);
+    S.services.forEach(s => {
+      const el = document.getElementById('mchk-'+s.id);
+      if (el) el.className = 'svc-check'+(S.manualSelSvcs.includes(s.id)?' checked':'');
+    });
+    const btn = document.getElementById('m-btn-step3');
+    if (S.manualSelSvcs.length) {
+      const price = S.manualSelSvcs.reduce((sum,id)=>{const s=S.services.find(v=>v.id===id);return sum+(s?s.price:0);},0);
+      const dur = S.manualSelSvcs.reduce((sum,id)=>{const s=S.services.find(v=>v.id===id);return sum+(s?s.duration_minutes:0);},0);
+      document.getElementById('m-svc-total').textContent = price.toLocaleString()+' ₽';
+      document.getElementById('m-svc-dur').textContent = '~'+dur+' мин';
+      document.getElementById('m-svc-summary').style.display = 'block';
+      btn.disabled = false; btn.style.opacity = 1;
+    } else {
+      document.getElementById('m-svc-summary').style.display = 'none';
+      btn.disabled = true; btn.style.opacity = 0.4;
+    }
+  },
+
+  manualStep3() {
+    document.getElementById('manual-step2').style.display = 'none';
+    document.getElementById('manual-step3').style.display = 'block';
+    const btn = document.getElementById('m-btn-save');
+    btn.disabled = !(S.manualSelDate && S.manualSelTime);
+    btn.style.opacity = (S.manualSelDate && S.manualSelTime) ? 1 : 0.4;
+    this.renderManualCal();
+  },
+
+  renderManualCal() {
+    const cal = document.getElementById('m-cal'); if (!cal) return;
+    const y=S.manualCalY, m=S.manualCalM;
+    const mNames=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+    const dLabels=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+    const today=todayStr(), firstDow=new Date(y,m,1).getDay(), lastDay=new Date(y,m+1,0).getDate();
+    let cells='';
+    for(let i=0;i<firstDow;i++) cells+='<div></div>';
+    for(let d=1;d<=lastDay;d++){
+      const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const past=ds<today, off=isOff(ds), sel=ds===S.manualSelDate, tod=ds===today;
+      let cls='date-cell';
+      if(past) cls+=' past'; else if(off) cls+=' off'; else cls+=' available';
+      if(tod&&!past) cls+=' today'; if(sel) cls+=' selected';
+      cells+=`<div class="${cls}" ${(!past&&!off)?`onclick="Admin.manualPickDate('${ds}')"`:''} >${d}</div>`;
+    }
+    let slotsHtml='';
+    if (S.manualSelDate) {
+      const dow=new Date(S.manualSelDate+'T12:00:00').getDay(), sched=S.schedule[dow];
+      if (sched&&sched.is_open) {
+        const dur=S.manualSelSvcs.reduce((sum,id)=>{const s=S.services.find(v=>v.id===id);return sum+(s?s.duration_minutes:0);},0)||30;
+        const openMin=timeToMin(sched.open_time), closeMin=timeToMin(sched.close_time);
+        const busy=getBusy(S.manualSelDate);
+        const slots=[];
+        for(let t=openMin;t+dur<=closeMin;t+=30){
+          let isBusy=false;
+          for(let bl=t;bl<t+dur;bl+=30){if(busy.has(bl)){isBusy=true;break;}}
+          const hh=String(Math.floor(t/60)).padStart(2,'0'),mm=String(t%60).padStart(2,'0');
+          slots.push({ts:`${hh}:${mm}`,busy:isBusy});
+        }
+        slotsHtml=`<div style="font-size:10px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin:12px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--gold-dim)">Выберите время</div>
+          <div class="time-grid">${slots.map(s=>`<div class="time-slot ${s.busy?'busy':'free'} ${S.manualSelTime===s.ts?'selected':''}" onclick="${s.busy?'':` Admin.manualPickTime('${s.ts}')`}">${s.ts}</div>`).join('')}</div>`;
+      }
+    }
+    cal.innerHTML=`
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <button class="cal-nav-btn" onclick="Admin.manualPrevM()">‹</button>
+        <span style="font-size:14px;color:var(--cream)">${mNames[m]} ${y}</span>
+        <button class="cal-nav-btn" onclick="Admin.manualNextM()">›</button>
+      </div>
+      <div class="date-grid">${dLabels.map(l=>`<div class="date-label">${l}</div>`).join('')}</div>
+      <div class="date-grid">${cells}</div>${slotsHtml}`;
+  },
+
+  manualPickDate(ds) {
+    S.manualSelDate=ds; S.manualSelTime=null;
+    document.getElementById('m-btn-save').disabled=true;
+    document.getElementById('m-btn-save').style.opacity=0.4;
+    this.renderManualCal();
+  },
+  manualPickTime(t) {
+    S.manualSelTime=t;
+    document.getElementById('m-btn-save').disabled=false;
+    document.getElementById('m-btn-save').style.opacity=1;
+    this.renderManualCal();
+  },
+  manualPrevM(){if(S.manualCalM===0){S.manualCalM=11;S.manualCalY--;}else S.manualCalM--;this.renderManualCal();},
+  manualNextM(){if(S.manualCalM===11){S.manualCalM=0;S.manualCalY++;}else S.manualCalM++;this.renderManualCal();},
+  manualBack(toStep){
+    document.getElementById('manual-step1').style.display=toStep===1?'block':'none';
+    document.getElementById('manual-step2').style.display=toStep===2?'block':'none';
+    document.getElementById('manual-step3').style.display='none';
+  },
+
   async saveManual() {
     const name=document.getElementById('m-name').value.trim();
-    const date=document.getElementById('m-date').value;
-    const time=document.getElementById('m-time').value;
-    if(!name||!date||!time){showToast('Заполните поля');return;}
-    const checked=document.querySelectorAll('#m-svc-list .svc-check.checked');
-    if(!checked.length){showToast('Выберите услуги');return;}
-    const svcs=Array.from(checked).map(el=>{const id=parseInt(el.dataset.id);const s=S.services.find(x=>x.id===id);return{id,name:s.name,price:s.price,duration:s.duration_minutes};});
+    const phone=document.getElementById('m-phone').value.trim();
+    if(!name||!S.manualSelDate||!S.manualSelTime||!S.manualSelSvcs.length){showToast('Заполните все данные');return;}
+    const svcs=S.manualSelSvcs.map(id=>{const s=S.services.find(v=>v.id===id);return{id,name:s.name,price:s.price,duration:s.duration_minutes};});
     try{
-      await SB.post('bookings',{date,time:time+':00',services:svcs,total_price:svcs.reduce((s,x)=>s+x.price,0),total_duration:svcs.reduce((s,x)=>s+x.duration,0),client_name:name,client_phone:document.getElementById('m-phone').value.trim()||null,client_telegram_id:null,reminder_sent:false,status:'pending'});
-      Modal.close('modal-manual');showToast('Запись добавлена ✓');this.renderBookings();
-    }catch(e){showToast('Ошибка');}
+      await SB.post('bookings',{date:S.manualSelDate,time:S.manualSelTime+':00',services:svcs,total_price:svcs.reduce((s,x)=>s+x.price,0),total_duration:svcs.reduce((s,x)=>s+x.duration,0),client_name:name,client_phone:phone||null,client_telegram_id:null,reminder_sent:false,status:'pending'});
+      Modal.close('modal-manual');showToast('Запись добавлена ✓');
+      S.adminSelDate=S.manualSelDate;this.renderBookings();
+    }catch(e){showToast('Ошибка сохранения');}
   },
 
   // УСЛУГИ
@@ -922,9 +1183,19 @@ const Admin = {
 // ── INIT ──────────────────────────────────────
 async function init(){
   await loadSvcs();
-  if(TG_USER&&TG_USER.id===CONFIG.ADMIN_TELEGRAM_ID){
-    const p=new URLSearchParams(window.location.search);
-    if(p.get('admin')==='1'||TG?.initDataUnsafe?.start_param==='admin'){Nav.go('admin');return;}
+  const p = new URLSearchParams(window.location.search);
+  const isAdminParam = p.get('admin')==='1' || TG?.initDataUnsafe?.start_param==='admin';
+  if (TG_USER && isAdminParam) {
+    // Проверяем — главный админ или в таблице admins
+    const isMainAdmin = TG_USER.id === CONFIG.ADMIN_TELEGRAM_ID;
+    let isDbAdmin = false;
+    if (!isMainAdmin) {
+      try {
+        const rows = await SB.get(`admins?telegram_id=eq.${TG_USER.id}`) || [];
+        isDbAdmin = rows.length > 0;
+      } catch(e) {}
+    }
+    if (isMainAdmin || isDbAdmin) { Nav.go('admin'); return; }
   }
   Home.render();
 }
