@@ -60,6 +60,11 @@ async function isAdminUser(chatId) {
   catch(e) { return false; }
 }
 
+async function isBarberUser(chatId) {
+  try { const rows = await sbReq('GET', `barbers?telegram_id=eq.${chatId}&is_active=eq.true`) || []; return rows.length > 0 ? rows[0] : null; }
+  catch(e) { return null; }
+}
+
 // Уведомление главному админу
 async function notifyAdmin(booking, isCancel=false) {
   const svcs = (booking.services||[]).map(s => `  • ${s.name}${isCancel?'':' — '+s.price+' ₽'}`).join('\n');
@@ -138,12 +143,17 @@ async function handleUpdate(update) {
   const chatId = msg.chat.id;
   const text = (msg.text||'').trim();
   const isAdmin = await isAdminUser(chatId);
+  const barber = isAdmin ? null : await isBarberUser(chatId);
 
   if (text.startsWith('/start')) {
     const param = text.split(' ')[1];
     if (param==='admin' && isAdmin) {
       await sendMessage(chatId, '👑 *Добро пожаловать в админку Barbaleo*', {
         reply_markup: { inline_keyboard: [[{ text: '⚙ Открыть админку', web_app: { url: WEBAPP_URL+'?admin=1' } }]] }
+      });
+    } else if (param==='admin' && barber) {
+      await sendMessage(chatId, `✂ *Привет, ${barber.name}!*\n\nОткрой свою панель:`, {
+        reply_markup: { inline_keyboard: [[{ text: '✂ Моя панель', web_app: { url: WEBAPP_URL+'?admin=1' } }]] }
       });
     } else {
       await sendMessage(chatId, `✂ *Barbaleo Club* — мужской барбершоп\n\nЗаписывайтесь онлайн!`, {
@@ -157,6 +167,10 @@ async function handleUpdate(update) {
       await sendMessage(chatId, '👑 Панель управления:', {
         reply_markup: { inline_keyboard: [[{ text: '⚙ Открыть админку', web_app: { url: WEBAPP_URL+'?admin=1' } }]] }
       });
+    } else if (barber) {
+      await sendMessage(chatId, `✂ *${barber.name}*, твоя панель:`, {
+        reply_markup: { inline_keyboard: [[{ text: '✂ Моя панель', web_app: { url: WEBAPP_URL+'?admin=1' } }]] }
+      });
     } else {
       await sendMessage(chatId, 'У вас нет прав администратора.');
     }
@@ -166,7 +180,6 @@ async function handleUpdate(update) {
     reply_markup: { inline_keyboard: [[{ text: '✂ Записаться в Barbaleo', web_app: { url: WEBAPP_URL } }]] }
   });
 }
-
 const server = http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');

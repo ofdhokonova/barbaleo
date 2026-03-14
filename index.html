@@ -1105,22 +1105,18 @@ const Admin = {
         const isOpen=t.classList.contains('on');
         const open=(document.getElementById('open-'+dow)?.value||'09:00')+':00';
         const close=(document.getElementById('close-'+dow)?.value||'21:00')+':00';
-        // Используем upsert — если запись существует обновляем, если нет создаём
-        const r = await fetch(CONFIG.SUPABASE_URL+'/rest/v1/schedule', {
-          method: 'POST',
-          headers: {
-            'apikey': CONFIG.SUPABASE_ANON_KEY,
-            'Authorization': 'Bearer '+CONFIG.SUPABASE_ANON_KEY,
-            'Content-Type': 'application/json',
-            'Prefer': 'resolution=merge-duplicates,return=minimal',
-          },
-          body: JSON.stringify({day_of_week:dow, barber_id:barberId, is_open:isOpen, open_time:open, close_time:close}),
-        });
-        if(!r.ok){const err=await r.text();throw new Error(err);}
+        // Всегда ищем существующую запись сначала
+        const existing=await SB.get(`schedule?barber_id=eq.${barberId}&day_of_week=eq.${dow}`)||[];
+        if(existing.length>0){
+          await SB.patch(`schedule?id=eq.${existing[0].id}`,{is_open:isOpen,open_time:open,close_time:close});
+        } else {
+          await SB.post('schedule',{day_of_week:dow,barber_id:barberId,is_open:isOpen,open_time:open,close_time:close});
+        }
+        // Обновляем кэш
+        S.schedule[`${barberId}_${dow}`]={...existing[0]||{},day_of_week:dow,barber_id:barberId,is_open:isOpen,open_time:open,close_time:close};
       }
       showToast('График сохранён ✓');
-      await loadAllSched();
-    }catch(e){console.error(e);showToast('Ошибка: '+e.message.slice(0,60));}
+    }catch(e){console.error(e);showToast('Ошибка: '+e.message.slice(0,80));}
   },
 
   // ── РУЧНАЯ ЗАПИСЬ ──
