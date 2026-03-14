@@ -541,11 +541,18 @@ const DateTime = {
     const openMin=timeToMin(sched.open_time);
     const closeMin=timeToMin(sched.close_time);
     const busy=getBusy(dateStr);
+    // Если сегодня — блокируем прошедшие слоты
+    const isToday = dateStr === todayStr();
+    const now = new Date();
+    const nowMin = isToday ? now.getHours()*60 + now.getMinutes() : 0;
     const slots=[];
     for(let t=openMin;t+dur<=closeMin;t+=30){
-      // Слот занят если хоть один 30-мин блок из диапазона [t, t+dur) уже занят
-      let isBusy=false;
-      for(let bl=t;bl<t+dur;bl+=30){if(busy.has(bl)){isBusy=true;break;}}
+      // Слот в прошлом если сегодня и время уже прошло (добавляем 30 мин буфер)
+      const isPast = isToday && t < nowMin + 30;
+      let isBusy = isPast;
+      if (!isBusy) {
+        for(let bl=t;bl<t+dur;bl+=30){if(busy.has(bl)){isBusy=true;break;}}
+      }
       const hh=String(Math.floor(t/60)).padStart(2,'0'), mm=String(t%60).padStart(2,'0');
       slots.push({ts:`${hh}:${mm}`,busy:isBusy});
     }
@@ -832,9 +839,14 @@ const Admin = {
     this.openManual(date, time);
   },
 
-  async setStatus(id,status) {
-    try{await SB.patch(`bookings?id=eq.${id}`,{status});showToast(status==='done'?'Выполнено ✓':'Отменено');this.renderBookings();}
-    catch(e){showToast('Ошибка');}
+  async setStatus(id, status) {
+    try {
+      await SB.patch(`bookings?id=eq.${id}`, { status });
+      showToast(status === 'done' ? 'Выполнено ✓' : 'Отменено');
+      // Перезагружаем записи чтобы слоты в календаре обновились
+      await loadBookings();
+      this.renderBookings();
+    } catch(e) { showToast('Ошибка'); }
   },
 
   async openManual(preDate, preTime) {
@@ -925,10 +937,16 @@ const Admin = {
         const dur=S.manualSelSvcs.reduce((sum,id)=>{const s=S.services.find(v=>v.id===id);return sum+(s?s.duration_minutes:0);},0)||30;
         const openMin=timeToMin(sched.open_time), closeMin=timeToMin(sched.close_time);
         const busy=getBusy(S.manualSelDate);
+        const isToday = S.manualSelDate === todayStr();
+        const now = new Date();
+        const nowMin = isToday ? now.getHours()*60 + now.getMinutes() : 0;
         const slots=[];
         for(let t=openMin;t+dur<=closeMin;t+=30){
-          let isBusy=false;
-          for(let bl=t;bl<t+dur;bl+=30){if(busy.has(bl)){isBusy=true;break;}}
+          const isPast = isToday && t < nowMin + 30;
+          let isBusy = isPast;
+          if (!isBusy) {
+            for(let bl=t;bl<t+dur;bl+=30){if(busy.has(bl)){isBusy=true;break;}}
+          }
           const hh=String(Math.floor(t/60)).padStart(2,'0'),mm=String(t%60).padStart(2,'0');
           slots.push({ts:`${hh}:${mm}`,busy:isBusy});
         }
