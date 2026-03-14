@@ -246,6 +246,19 @@ input,select,textarea{font-family:inherit;font-size:inherit}
   <div class="content" id="admin-content"><div class="loader"><div class="spinner"></div></div></div>
 </div>
 
+<!-- ПАНЕЛЬ БАРБЕРА -->
+<div id="screen-barber-panel" class="screen">
+  <div class="hdr">
+    <div class="hdr-logo"><span class="hdr-crown">✂</span><span class="hdr-name" id="barber-panel-name">Барбер</span></div>
+    <button class="hdr-action" onclick="Nav.go('home')">Выход</button>
+  </div>
+  <div class="admin-tabs">
+    <button class="admin-tab active" onclick="BarberPanel.tab('bookings',this)">Мои записи</button>
+    <button class="admin-tab" onclick="BarberPanel.tab('schedule',this)">Мой график</button>
+  </div>
+  <div class="content" id="barber-panel-content"><div class="loader"><div class="spinner"></div></div></div>
+</div>
+
 <!-- MODAL: Услуга -->
 <div class="modal-overlay hidden" id="modal-service">
   <div class="modal">
@@ -360,6 +373,7 @@ const S = {
   schY: new Date().getFullYear(), schM: new Date().getMonth(),
   schedSelBarber: null,
   adminTab: 'bookings', adminSelDate: null, adminSelBarber: null,
+  currentBarber: null, barberPanelDate: null,
   manualSelBarber: null, manualSelSvcs: [], manualSelDate: null, manualSelTime: null,
   manualCalY: new Date().getFullYear(), manualCalM: new Date().getMonth(),
   histY: new Date().getFullYear(), histM: new Date().getMonth(), histSelDate: null,
@@ -453,6 +467,7 @@ const Nav = {
     if (screen==='confirm') Confirm.render();
     if (screen==='profile') Profile.render();
     if (screen==='admin') Admin.render();
+    if (screen==='barber-panel') BarberPanel.render();
   }
 };
 
@@ -1080,8 +1095,8 @@ const Admin = {
       this.renderSchedule();
     }catch(e){showToast('Ошибка');}
   },
-  schPrev(){if(S.schM===0){S.schM=11;S.schY--;}else S.schM--;this.renderSchedule();},
-  schNext(){if(S.schM===11){S.schM=0;S.schY++;}else S.schM++;this.renderSchedule();},
+  schPrev(){if(S.schM===0){S.schM=11;S.schY--;}else S.schM--;if(S.currentBarber&&document.getElementById('screen-barber-panel').classList.contains('active'))BarberPanel.renderTab('schedule');else this.renderSchedule();},
+  schNext(){if(S.schM===11){S.schM=0;S.schY++;}else S.schM++;if(S.currentBarber&&document.getElementById('screen-barber-panel').classList.contains('active'))BarberPanel.renderTab('schedule');else this.renderSchedule();},
   togDay(dow){const t=document.getElementById('tog-'+dow),r=document.getElementById('tr-'+dow);t.classList.toggle('on');const on=t.classList.contains('on');r.style.opacity=on?1:0.3;r.style.pointerEvents=on?'':'none';},
   async saveSched(barberId){
     try{
@@ -1090,22 +1105,22 @@ const Admin = {
         const isOpen=t.classList.contains('on');
         const open=(document.getElementById('open-'+dow)?.value||'09:00')+':00';
         const close=(document.getElementById('close-'+dow)?.value||'21:00')+':00';
-        const key=`${barberId}_${dow}`;
-        const ex=S.schedule[key];
-        if(ex?.id){
-          await SB.patch(`schedule?id=eq.${ex.id}`,{is_open:isOpen,open_time:open,close_time:close});
-        } else {
-          // Сначала проверяем не существует ли уже запись
-          const existing=await SB.get(`schedule?barber_id=eq.${barberId}&day_of_week=eq.${dow}`)||[];
-          if(existing.length>0){
-            await SB.patch(`schedule?barber_id=eq.${barberId}&day_of_week=eq.${dow}`,{is_open:isOpen,open_time:open,close_time:close});
-          } else {
-            await SB.post('schedule',{day_of_week:dow,barber_id:barberId,is_open:isOpen,open_time:open,close_time:close});
-          }
-        }
+        // Используем upsert — если запись существует обновляем, если нет создаём
+        const r = await fetch(CONFIG.SUPABASE_URL+'/rest/v1/schedule', {
+          method: 'POST',
+          headers: {
+            'apikey': CONFIG.SUPABASE_ANON_KEY,
+            'Authorization': 'Bearer '+CONFIG.SUPABASE_ANON_KEY,
+            'Content-Type': 'application/json',
+            'Prefer': 'resolution=merge-duplicates,return=minimal',
+          },
+          body: JSON.stringify({day_of_week:dow, barber_id:barberId, is_open:isOpen, open_time:open, close_time:close}),
+        });
+        if(!r.ok){const err=await r.text();throw new Error(err);}
       }
-      showToast('График сохранён ✓');await loadAllSched();
-    }catch(e){console.error(e);showToast('Ошибка: '+e.message);}
+      showToast('График сохранён ✓');
+      await loadAllSched();
+    }catch(e){console.error(e);showToast('Ошибка: '+e.message.slice(0,60));}
   },
 
   // ── РУЧНАЯ ЗАПИСЬ ──
@@ -1374,6 +1389,134 @@ const Admin = {
   histShowDay(ds){S.histSelDate=S.histSelDate===ds?null:ds;this.renderHistory();},
   histPrev(){if(S.histM===0){S.histM=11;S.histY--;}else S.histM--;S.histSelDate=null;this.renderHistory();},
   histNext(){if(S.histM===11){S.histM=0;S.histY++;}else S.histM++;S.histSelDate=null;this.renderHistory();},
+
+  async renderScheduleForBarber(barberId, container){
+    const c = container || document.getElementById('admin-content');
+    await loadAllSched();
+    // days_off для этого барбера
+    try{const rows=await SB.get(`days_off?barber_id=eq.${barberId}&order=date.asc`)||[];S.daysOff={};rows.forEach(r=>S.daysOff[r.date]=r.id);}catch(e){S.daysOff={};}
+
+    const y=S.schY||new Date().getFullYear(), m=S.schM||new Date().getMonth();
+    const mNames=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+    const dLabels=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+    const dNames=['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
+    const today=todayStr(), firstDow=new Date(y,m,1).getDay(), lastDay=new Date(y,m+1,0).getDate();
+    let cells='';
+    for(let i=0;i<firstDow;i++)cells+='<div></div>';
+    for(let d=1;d<=lastDay;d++){
+      const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const dow=new Date(ds+'T12:00:00').getDay(), key=`${barberId}_${dow}`;
+      const sched=S.schedule[key];
+      const past=ds<today, weekOff=!sched||!sched.is_open, dayOff=!!S.daysOff[ds], tod=ds===today;
+      let cls='date-cell', style='';
+      if(past) cls+=' past'; else if(weekOff) cls+=' off';
+      else if(dayOff){cls+=' available';style='background:rgba(192,57,43,0.25);color:#e57a72;border-color:rgba(192,57,43,0.4);';}
+      else cls+=' available';
+      if(tod) cls+=' today';
+      const onclk=(!past&&!weekOff)?`onclick="Admin.toggleDayOff('${ds}',${barberId})"` : '';
+      cells+=`<div class="${cls}" style="${style}" ${onclk}>${d}</div>`;
+    }
+    c.innerHTML=`
+      <div class="card" style="margin-bottom:16px">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Нажми на день — отметить/снять выходной</div>
+        <div class="cal-nav">
+          <button class="cal-nav-btn" onclick="Admin.schPrev()">‹</button>
+          <span class="cal-month">${mNames[m]} ${y}</span>
+          <button class="cal-nav-btn" onclick="Admin.schNext()">›</button>
+        </div>
+        <div class="date-grid">${dLabels.map(l=>`<div class="date-label">${l}</div>`).join('')}</div>
+        <div class="date-grid">${cells}</div>
+        ${Object.keys(S.daysOff).length?`
+          <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--bg5)">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Выходные:</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">
+              ${Object.keys(S.daysOff).sort().map(ds=>{
+                const df=new Date(ds+'T12:00:00').toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
+                return `<div style="padding:4px 8px;background:rgba(192,57,43,0.2);color:#e57a72;border-radius:6px;font-size:12px;cursor:pointer" onclick="Admin.toggleDayOff('${ds}',${barberId})">${df} ✕</div>`;
+              }).join('')}
+            </div>
+          </div>`:''}
+      </div>
+      <div class="sec-title">Рабочие часы</div>
+      <div class="card">
+        ${[1,2,3,4,5,6,0].map(dow=>{
+          const key=`${barberId}_${dow}`;
+          const s=S.schedule[key]||{is_open:false,open_time:'09:00:00',close_time:'21:00:00'};
+          return `<div class="day-toggle">
+            <span class="day-name">${dNames[dow].slice(0,3)}</span>
+            <div class="toggle-wrap">
+              <div class="toggle ${s.is_open?'on':''}" onclick="Admin.togDay(${dow})" id="tog-${dow}"></div>
+              <div class="time-range" id="tr-${dow}" style="${s.is_open?'':'opacity:0.3;pointer-events:none'}">
+                <input class="time-input" type="time" value="${s.open_time.slice(0,5)}" id="open-${dow}">
+                <span style="color:var(--muted);font-size:12px">–</span>
+                <input class="time-input" type="time" value="${s.close_time.slice(0,5)}" id="close-${dow}">
+              </div>
+            </div>
+          </div>`;}).join('')}
+      </div>
+      <div style="padding-top:10px"><button class="btn btn-gold" onclick="Admin.saveSched(${barberId})">Сохранить</button></div>`;
+  },
+};
+
+// ── BARBER PANEL ──────────────────────────────
+const BarberPanel = {
+  async render(){
+    await this.renderTab('bookings');
+  },
+  tab(name, btn){
+    document.querySelectorAll('#screen-barber-panel .admin-tab').forEach(t=>t.classList.remove('active'));
+    btn.classList.add('active');
+    this.renderTab(name);
+  },
+  async renderTab(name){
+    const c=document.getElementById('barber-panel-content');
+    c.innerHTML='<div class="loader"><div class="spinner"></div></div>';
+    if(name==='bookings') await this.renderBookings();
+    if(name==='schedule') await this.renderSchedule();
+  },
+
+  async renderBookings(){
+    const c=document.getElementById('barber-panel-content');
+    if(!S.currentBarber){c.innerHTML='<div class="empty"><div class="empty-text">Ошибка: барбер не найден</div></div>';return;}
+    try{
+      await Promise.all([loadAllSched(), loadBookings(S.currentBarber.id), loadDaysOff(S.currentBarber.id)]);
+      const today=new Date(), weekDates=[];
+      for(let i=0;i<7;i++){const d=new Date(today.getFullYear(),today.getMonth(),today.getDate()+i);weekDates.push(localDateStr(d));}
+      const bookingMap={};
+      S.bookings.filter(b=>b.status!=='cancelled').forEach(b=>{
+        if(!bookingMap[b.date])bookingMap[b.date]={};
+        const tMin=timeToMin(b.time);
+        if(!bookingMap[b.date][tMin])bookingMap[b.date][tMin]=[];
+        bookingMap[b.date][tMin].push(b);
+      });
+      const dayNames=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+      const today_s=todayStr();
+      if(!S.barberPanelDate)S.barberPanelDate=today_s;
+      const weekHtml=`<div style="display:flex;gap:4px;margin-bottom:12px;overflow-x:auto">
+        ${weekDates.map(ds=>{
+          const d=new Date(ds+'T12:00:00'),dow=d.getDay(),isT=ds===today_s,isSel=ds===S.barberPanelDate;
+          const cnt=S.bookings.filter(b=>b.date===ds&&b.status!=='cancelled').length;
+          return `<div onclick="BarberPanel.showDay('${ds}')" style="flex:1;min-width:42px;text-align:center;padding:8px 4px;border-radius:var(--rs);cursor:pointer;background:${isSel?'var(--gold-dim)':isT?'var(--bg4)':'var(--bg3)'};border:1px solid ${isSel?'var(--gold)':isT?'var(--gold-dark)':'var(--bg5)'};transition:all .15s">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:2px">${dayNames[dow]}</div>
+            <div style="font-size:15px;color:${isT?'var(--gold)':'var(--cream)'};font-weight:${isT?700:400}">${d.getDate()}</div>
+            ${cnt>0?`<div style="width:6px;height:6px;border-radius:50%;background:var(--gold);margin:3px auto 0"></div>`:'<div style="height:9px"></div>'}
+          </div>`;
+        }).join('')}
+      </div>`;
+      c.innerHTML=weekHtml+Admin.buildDayView(S.barberPanelDate, bookingMap, S.currentBarber.id);
+    }catch(e){c.innerHTML='<div class="empty"><div class="empty-text">Ошибка загрузки</div></div>';}
+  },
+  showDay(ds){S.barberPanelDate=ds;this.renderBookings();},
+
+  async renderSchedule(){
+    const c=document.getElementById('barber-panel-content');
+    if(!S.currentBarber){c.innerHTML='<div class="empty"><div class="empty-text">Ошибка</div></div>';return;}
+    // Устанавливаем выбранного барбера для renderSchedule
+    S.schedSelBarber=S.currentBarber.id;
+    await loadAllBarbers();
+    // Вызываем тот же renderSchedule из Admin но без выбора барбера
+    await Admin.renderScheduleForBarber(S.currentBarber.id, c);
+  },
 };
 
 // ── INIT ──────────────────────────────────────
@@ -1383,9 +1526,27 @@ async function init(){
     const isMain=TG_USER.id===CONFIG.ADMIN_TELEGRAM_ID;
     const p=new URLSearchParams(window.location.search);
     const wantsAdmin=p.get('admin')==='1'||TG?.initDataUnsafe?.start_param==='admin';
+
     if(isMain&&wantsAdmin){Nav.go('admin');return;}
+
     if(!isMain&&wantsAdmin){
-      try{const rows=await SB.get(`admins?telegram_id=eq.${TG_USER.id}`)||[];if(rows.length>0){Nav.go('admin');return;}}catch(e){}
+      // Проверяем роль admin
+      try{
+        const adminRows=await SB.get(`admins?telegram_id=eq.${TG_USER.id}`)||[];
+        if(adminRows.length>0){Nav.go('admin');return;}
+      }catch(e){}
+
+      // Проверяем роль barber
+      try{
+        const barberRows=await SB.get(`barbers?telegram_id=eq.${TG_USER.id}&is_active=eq.true`)||[];
+        if(barberRows.length>0){
+          S.currentBarber=barberRows[0];
+          S.barberPanelDate=todayStr();
+          document.getElementById('barber-panel-name').textContent=barberRows[0].name;
+          Nav.go('barber-panel');
+          return;
+        }
+      }catch(e){}
     }
   }
   Home.render();
