@@ -607,6 +607,7 @@ const Profile = {
       const done=bks.filter(b=>b.status==='done').length;
       const sm={pending:'⏳ Ожидает',done:'✓ Выполнено',cancelled:'✕ Отменено'};
       const sb={pending:'badge-pending',done:'badge-done',cancelled:'badge-cancelled'};
+      const today=todayStr();
       c.innerHTML=`
         <div class="profile-avatar">${av}</div>
         <div class="profile-name">${nm}</div>
@@ -616,16 +617,55 @@ const Profile = {
           <div class="card" style="text-align:center"><div style="font-size:22px;color:var(--gold);font-weight:700">${spent.toLocaleString()}</div><div style="font-size:11px;color:var(--muted);margin-top:2px">потрачено ₽</div></div>
         </div>
         <div class="sec-title">История</div>
-        ${bks.length?bks.map(b=>`
+        ${bks.length?bks.map(b=>{
+          const canCancel = b.status==='pending' && b.date >= today;
+          return `
           <div class="hist-item">
-            <div style="display:flex;justify-content:space-between">
-              <div class="hist-date">${new Date(b.date+'T12:00:00').toLocaleDateString('ru-RU',{day:'numeric',month:'short'})} · ${b.time.slice(0,5)}</div>
-              <span class="badge ${sb[b.status]||'badge-pending'}">${sm[b.status]||b.status}</span>
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div>
+                <div class="hist-date">${new Date(b.date+'T12:00:00').toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'short'})} · ${b.time.slice(0,5)}</div>
+                <div class="hist-services">${(b.services||[]).map(s=>s.name).join(', ')}</div>
+                <div class="hist-price">${(b.total_price||0).toLocaleString()} ₽</div>
+              </div>
+              <span class="badge ${sb[b.status]||'badge-pending'}" style="flex-shrink:0;margin-left:8px">${sm[b.status]||b.status}</span>
             </div>
-            <div class="hist-services">${(b.services||[]).map(s=>s.name).join(', ')}</div>
-            <div class="hist-price">${(b.total_price||0).toLocaleString()} ₽</div>
-          </div>`).join(''):'<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Записей пока нет</div></div>'}`;
+            ${canCancel?`
+              <button onclick="Profile.cancelBooking(${b.id},'${b.date}','${b.time.slice(0,5)}')"
+                style="margin-top:10px;width:100%;padding:9px;background:transparent;border:1px solid var(--danger);border-radius:var(--rs);color:var(--danger);font-size:13px;cursor:pointer">
+                Отменить запись
+              </button>`:''}
+          </div>`;
+        }).join(''):'<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Записей пока нет</div></div>'}`;
     } catch(e){c.innerHTML='<div class="empty"><div class="empty-text">Ошибка загрузки</div></div>';}
+  },
+
+  async cancelBooking(id, date, time) {
+    const d = new Date(date+'T12:00:00').toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});
+    if (!confirm(`Отменить запись?\n${d} в ${time}`)) return;
+    try {
+      // Получаем данные записи для уведомления
+      const rows = await SB.get(`bookings?id=eq.${id}`) || [];
+      const bk = rows[0];
+
+      // Отменяем в базе
+      await SB.patch(`bookings?id=eq.${id}`, { status: 'cancelled' });
+
+      // Уведомляем бота (админу)
+      if (bk) {
+        try {
+          await fetch(CONFIG.BOT_URL + '/notify-cancel', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ booking: bk }),
+          });
+        } catch(e) {}
+      }
+
+      showToast('Запись отменена');
+      this.render(); // Перерисовываем профиль
+    } catch(e) {
+      showToast('Ошибка. Попробуйте снова.');
+    }
   }
 };
 

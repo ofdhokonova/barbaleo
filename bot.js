@@ -74,6 +74,17 @@ async function notifyAdmin(booking) {
   );
 }
 
+async function notifyAdminCancel(booking) {
+  const client = booking.client_telegram_username
+    ? `${booking.client_name} (@${booking.client_telegram_username})`
+    : booking.client_name || 'Клиент';
+  const phone = booking.client_phone ? `\n📞 ${booking.client_phone}` : '';
+  const services = (booking.services || []).map(s => `  • ${s.name}`).join('\n');
+  await sendMessage(ADMIN_ID,
+    `❌ *Клиент отменил запись*\n\n👤 ${client}${phone}\n📅 ${formatDate(booking.date)}\n🕐 ${formatTime(booking.time)}\n\n*Услуги:*\n${services}\n\n💰 Сумма: *${booking.total_price} ₽*`
+  );
+}
+
 async function notifyClient(booking) {
   if (!booking.client_telegram_id) return;
   const services = (booking.services || []).map(s => `  • ${s.name}`).join('\n');
@@ -175,6 +186,13 @@ const server = http.createServer((req, res) => {
       if (req.url === '/notify') {
         const booking = data.booking || data;
         await Promise.allSettled([notifyAdmin(booking), notifyClient(booking)]);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ ok: true }));
+        return;
+      }
+      if (req.url === '/notify-cancel') {
+        const booking = data.booking || data;
+        await notifyAdminCancel(booking);
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ ok: true }));
         return;
