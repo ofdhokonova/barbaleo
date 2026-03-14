@@ -360,6 +360,14 @@ const SB = {
   post: (p, b) => SB.req('POST', p, b),
   patch: (p, b) => SB.req('PATCH', p, b),
   delete: (p) => SB.req('DELETE', p),
+  upsert: (p, b, onConflict) => {
+    const url = p + (onConflict ? `?on_conflict=${onConflict}` : '');
+    return fetch(CONFIG.SUPABASE_URL + '/rest/v1/' + url, {
+      method: 'POST',
+      headers: { 'apikey': CONFIG.SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + CONFIG.SUPABASE_ANON_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+      body: JSON.stringify(b),
+    }).then(r => { if (!r.ok) return r.text().then(t => { throw new Error(t); }); return null; });
+  },
 };
 
 const TG = window.Telegram?.WebApp;
@@ -1100,21 +1108,16 @@ const Admin = {
   togDay(dow){const t=document.getElementById('tog-'+dow),r=document.getElementById('tr-'+dow);t.classList.toggle('on');const on=t.classList.contains('on');r.style.opacity=on?1:0.3;r.style.pointerEvents=on?'':'none';},
   async saveSched(barberId){
     try{
+      const rows=[];
       for(const dow of [0,1,2,3,4,5,6]){
         const t=document.getElementById('tog-'+dow);if(!t)continue;
         const isOpen=t.classList.contains('on');
         const open=(document.getElementById('open-'+dow)?.value||'09:00')+':00';
         const close=(document.getElementById('close-'+dow)?.value||'21:00')+':00';
-        // Всегда ищем существующую запись сначала
-        const existing=await SB.get(`schedule?barber_id=eq.${barberId}&day_of_week=eq.${dow}`)||[];
-        if(existing.length>0){
-          await SB.patch(`schedule?id=eq.${existing[0].id}`,{is_open:isOpen,open_time:open,close_time:close});
-        } else {
-          await SB.post('schedule',{day_of_week:dow,barber_id:barberId,is_open:isOpen,open_time:open,close_time:close});
-        }
-        // Обновляем кэш
-        S.schedule[`${barberId}_${dow}`]={...existing[0]||{},day_of_week:dow,barber_id:barberId,is_open:isOpen,open_time:open,close_time:close};
+        rows.push({day_of_week:dow,barber_id:barberId,is_open:isOpen,open_time:open,close_time:close});
+        S.schedule[`${barberId}_${dow}`]={day_of_week:dow,barber_id:barberId,is_open:isOpen,open_time:open,close_time:close};
       }
+      await SB.upsert('schedule',rows,'barber_id,day_of_week');
       showToast('График сохранён ✓');
     }catch(e){console.error(e);showToast('Ошибка: '+e.message.slice(0,80));}
   },
