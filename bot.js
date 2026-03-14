@@ -56,12 +56,12 @@ function formatTime(t) { return t ? t.slice(0,5) : ''; }
 
 async function isAdminUser(chatId) {
   if (String(chatId) === String(ADMIN_ID)) return true;
-  try { const rows = await sbReq('GET', `admins?telegram_id=eq.${chatId}`) || []; return rows.length > 0; }
+  try { const rows = await sbReq('GET', `admins?telegram_id=eq.${String(chatId)}`) || []; return rows.length > 0; }
   catch(e) { return false; }
 }
 
 async function isBarberUser(chatId) {
-  try { const rows = await sbReq('GET', `barbers?telegram_id=eq.${chatId}&is_active=eq.true`) || []; return rows.length > 0 ? rows[0] : null; }
+  try { const rows = await sbReq('GET', `barbers?telegram_id=eq.${String(chatId)}&is_active=eq.true`) || []; return rows.length > 0 ? rows[0] : null; }
   catch(e) { return null; }
 }
 
