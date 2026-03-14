@@ -205,6 +205,7 @@ input,select,textarea{font-family:inherit;font-size:inherit}
     <button class="admin-tab" onclick="Admin.tab('services',this)">Услуги</button>
     <button class="admin-tab" onclick="Admin.tab('schedule',this)">График</button>
     <button class="admin-tab" onclick="Admin.tab('clients',this)">Клиенты</button>
+    <button class="admin-tab" onclick="Admin.tab('history',this)">История</button>
   </div>
   <div class="content" id="admin-content"><div class="loader"><div class="spinner"></div></div></div>
 </div>
@@ -306,6 +307,7 @@ const S = {
   adminTab: 'bookings', adminSelDate: null,
   manualSelSvcs: [], manualSelDate: null, manualSelTime: null,
   manualCalY: new Date().getFullYear(), manualCalM: new Date().getMonth(),
+  histY: new Date().getFullYear(), histM: new Date().getMonth(), histSelDate: null,
 };
 
 // ── UTILS ─────────────────────────────────────
@@ -690,6 +692,7 @@ const Admin = {
     if(name==='services') await this.renderServices();
     if(name==='schedule') await this.renderSchedule();
     if(name==='clients') await this.renderClients();
+    if(name==='history') await this.renderHistory();
   },
 
   // ЗАПИСИ
@@ -1236,6 +1239,117 @@ const Admin = {
       this.renderClients();
     }catch(e){showToast('Ошибка (возможно нет таблицы admins)');}
   },
+
+  // ИСТОРИЯ
+  async renderHistory() {
+    const c = document.getElementById('admin-content');
+    if (!S.histY) { S.histY = new Date().getFullYear(); S.histM = new Date().getMonth(); }
+
+    // Загружаем ВСЕ записи за выбранный месяц (включая отменённые)
+    const y = S.histY, m = S.histM;
+    const from = `${y}-${String(m+1).padStart(2,'0')}-01`;
+    const lastDay = new Date(y, m+1, 0).getDate();
+    const to = `${y}-${String(m+1).padStart(2,'0')}-${String(lastDay).padStart(2,'0')}`;
+
+    let allBks = [];
+    try {
+      allBks = await SB.get(`bookings?date=gte.${from}&date=lte.${to}&order=date.asc,time.asc`) || [];
+    } catch(e) {}
+
+    const monthNames = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+    const dayLabels = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+    const firstDow = new Date(y, m, 1).getDay();
+    const today = todayStr();
+
+    // Группируем по дате
+    const byDate = {};
+    allBks.forEach(b => { if(!byDate[b.date]) byDate[b.date]=[]; byDate[b.date].push(b); });
+
+    // Считаем статистику за месяц
+    const totalDone = allBks.filter(b=>b.status==='done').length;
+    const totalPending = allBks.filter(b=>b.status==='pending').length;
+    const totalCancelled = allBks.filter(b=>b.status==='cancelled').length;
+    const totalRevenue = allBks.filter(b=>b.status==='done').reduce((s,b)=>s+(b.total_price||0),0);
+
+    // Строим календарь
+    let cells = '';
+    for(let i=0;i<firstDow;i++) cells+='<div></div>';
+    for(let d=1;d<=lastDay;d++){
+      const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const dayBks = byDate[ds] || [];
+      const hasPending = dayBks.some(b=>b.status==='pending');
+      const hasDone = dayBks.some(b=>b.status==='done');
+      const isToday = ds === today;
+      const isSel = ds === S.histSelDate;
+      let bg = 'transparent';
+      if (hasDone) bg = 'rgba(39,174,96,0.2)';
+      if (hasPending) bg = 'rgba(201,168,76,0.2)';
+      cells += `<div class="date-cell ${isToday?'today':''} ${isSel?'selected':''} ${dayBks.length?'available':''}"
+        style="${dayBks.length?`background:${bg};`:''}position:relative;"
+        onclick="${dayBks.length?`Admin.histShowDay('${ds}')`:''}" >
+        ${d}
+        ${dayBks.length?`<div style="position:absolute;bottom:2px;left:50%;transform:translateX(-50%);font-size:8px;color:${hasDone?'#27AE60':hasPending?'var(--gold)':'var(--muted)'}">${dayBks.length}</div>`:''}
+      </div>`;
+    }
+
+    // Детальный вид выбранного дня
+    let dayDetail = '';
+    if (S.histSelDate && byDate[S.histSelDate]) {
+      const bks = byDate[S.histSelDate];
+      const df = new Date(S.histSelDate+'T12:00:00').toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});
+      const sb={pending:'badge-pending',done:'badge-done',cancelled:'badge-cancelled'};
+      const sm={pending:'Ожидает',done:'Выполнено',cancelled:'Отменено'};
+      dayDetail = `
+        <div class="sec-title">${df}</div>
+        ${bks.map(b=>`
+          <div class="booking-card ${b.status}" style="opacity:${b.status==='cancelled'?0.5:1}">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div class="booking-time">${b.time.slice(0,5)} · ${b.total_duration} мин</div>
+              <span class="badge ${sb[b.status]||'badge-pending'}">${sm[b.status]||b.status}</span>
+            </div>
+            <div class="booking-client">${b.client_name||'Клиент'}${b.client_phone?' · '+b.client_phone:''}</div>
+            <div class="booking-services">${(b.services||[]).map(s=>s.name).join(', ')}</div>
+            <div style="font-size:13px;color:var(--gold);margin-top:4px">${(b.total_price||0).toLocaleString()} ₽</div>
+          </div>`).join('')}`;
+    }
+
+    c.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+        <div class="card" style="text-align:center;padding:10px">
+          <div style="font-size:18px;color:var(--gold);font-weight:700">${totalDone}</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px">выполнено</div>
+        </div>
+        <div class="card" style="text-align:center;padding:10px">
+          <div style="font-size:18px;color:var(--gold);font-weight:700">${totalRevenue.toLocaleString()} ₽</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px">выручка</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:14px">
+        <div class="cal-nav">
+          <button class="cal-nav-btn" onclick="Admin.histPrev()">‹</button>
+          <span class="cal-month">${monthNames[m]} ${y}</span>
+          <button class="cal-nav-btn" onclick="Admin.histNext()">›</button>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px;text-align:center">
+          <span style="color:var(--gold)">●</span> ожидает &nbsp;
+          <span style="color:#27AE60">●</span> выполнено &nbsp;
+          <span style="color:var(--muted)">отменено не показано</span>
+        </div>
+        <div class="date-grid">${dayLabels.map(l=>`<div class="date-label">${l}</div>`).join('')}</div>
+        <div class="date-grid">${cells}</div>
+      </div>
+
+      ${dayDetail || (allBks.length===0 ? '<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Нет записей за этот месяц</div></div>' : '<div style="text-align:center;color:var(--muted);font-size:13px;padding:10px">Нажми на день чтобы увидеть записи</div>')}
+    `;
+  },
+
+  histShowDay(ds) {
+    S.histSelDate = S.histSelDate === ds ? null : ds;
+    this.renderHistory();
+  },
+  histPrev() { if(S.histM===0){S.histM=11;S.histY--;}else S.histM--; S.histSelDate=null; this.renderHistory(); },
+  histNext() { if(S.histM===11){S.histM=0;S.histY++;}else S.histM++; S.histSelDate=null; this.renderHistory(); },
 };
 
 // ── INIT ──────────────────────────────────────
