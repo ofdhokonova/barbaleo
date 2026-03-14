@@ -303,13 +303,15 @@ function isOff(dateStr) {
   return !sched || !sched.is_open || !!S.daysOff[dateStr];
 }
 
-// getBusy — Set занятых минут для конкретной даты (поминутно)
+// getBusy — Set занятых стартовых слотов (каждые 30 мин) для конкретной даты
 function getBusy(dateStr) {
   const busy = new Set();
   S.bookings.filter(b => b.date === dateStr && b.status !== 'cancelled').forEach(b => {
     const start = timeToMin(b.time);
-    const dur = b.total_duration || 60;
-    for (let i = start; i < start + dur; i++) busy.add(i);
+    const dur = b.total_duration || 30;
+    // Блокируем каждый 30-минутный слот который попадает в диапазон записи
+    // Слот t заблокирован если start <= t < start+dur
+    for (let t = start; t < start + dur; t += 30) busy.add(t);
   });
   return busy;
 }
@@ -358,7 +360,6 @@ const Home = {
         <div style="font-size:11px;color:var(--muted);letter-spacing:3px">BARBERSHOP</div>
       </div>
       <button class="btn btn-gold" onclick="Nav.go('services')" style="font-size:16px;padding:16px;margin-bottom:10px">✂ &nbsp;Записаться</button>
-      <button class="btn btn-outline" onclick="Home.showFree()" style="font-size:14px;padding:13px;margin-bottom:24px">Посмотреть свободное время</button>
       <div id="free-sec"></div>`;
   },
 
@@ -387,9 +388,8 @@ const Home = {
         const busy = getBusy(ds);
         const slots = [];
         for (let t = openMin; t + 30 <= closeMin; t += 30) {
-          let free = true;
-          for (let i = t; i < t + 30; i++) { if (busy.has(i)) { free = false; break; } }
-          if (free) slots.push(String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0'));
+          // Слот свободен если 30-мин блок не занят
+          if (!busy.has(t)) slots.push(String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0'));
         }
         const lbl = ds===today ? 'Сегодня' : daysFull[dow]+', '+d.toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
         return `<div class="card gold-border" style="margin-bottom:10px">
@@ -514,8 +514,9 @@ const DateTime = {
     const busy=getBusy(dateStr);
     const slots=[];
     for(let t=openMin;t+dur<=closeMin;t+=30){
+      // Слот занят если хоть один 30-мин блок из диапазона [t, t+dur) уже занят
       let isBusy=false;
-      for(let i=t;i<t+dur;i++){if(busy.has(i)){isBusy=true;break;}}
+      for(let bl=t;bl<t+dur;bl+=30){if(busy.has(bl)){isBusy=true;break;}}
       const hh=String(Math.floor(t/60)).padStart(2,'0'), mm=String(t%60).padStart(2,'0');
       slots.push({ts:`${hh}:${mm}`,busy:isBusy});
     }
