@@ -359,7 +359,7 @@ const S = {
   calY: new Date().getFullYear(), calM: new Date().getMonth(),
   schY: new Date().getFullYear(), schM: new Date().getMonth(),
   schedSelBarber: null,
-  adminTab: 'bookings', adminSelDate: null,
+  adminTab: 'bookings', adminSelDate: null, adminSelBarber: null,
   manualSelBarber: null, manualSelSvcs: [], manualSelDate: null, manualSelTime: null,
   manualCalY: new Date().getFullYear(), manualCalM: new Date().getMonth(),
   histY: new Date().getFullYear(), histM: new Date().getMonth(), histSelDate: null,
@@ -751,8 +751,15 @@ const Admin = {
       const today=new Date();
       const weekDates=[];
       for(let i=0;i<7;i++){const d=new Date(today.getFullYear(),today.getMonth(),today.getDate()+i);weekDates.push(localDateStr(d));}
+
+      // Фильтр по барберу
+      if(S.adminSelBarber===undefined) S.adminSelBarber=null;
+      const filteredBks = S.adminSelBarber
+        ? S.bookings.filter(b=>b.barber_id===S.adminSelBarber)
+        : S.bookings;
+
       const bookingMap={};
-      S.bookings.filter(b=>b.status!=='cancelled').forEach(b=>{
+      filteredBks.filter(b=>b.status!=='cancelled').forEach(b=>{
         if(!bookingMap[b.date])bookingMap[b.date]={};
         const tMin=timeToMin(b.time);
         if(!bookingMap[b.date][tMin])bookingMap[b.date][tMin]=[];
@@ -761,10 +768,18 @@ const Admin = {
       const dayNames=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
       const today_s=todayStr();
       if(!S.adminSelDate)S.adminSelDate=today_s;
-      let weekHtml=`<div style="display:flex;gap:4px;margin-bottom:16px;overflow-x:auto">
+
+      // Кнопки барберов
+      const barberTabs=`
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
+          <button onclick="Admin.filterBarber(null)" style="padding:6px 12px;border-radius:20px;border:1px solid ${S.adminSelBarber===null?'var(--gold)':'var(--bg5)'};background:${S.adminSelBarber===null?'var(--gold-dim)':'transparent'};color:${S.adminSelBarber===null?'var(--gold)':'var(--muted)'};font-size:12px;cursor:pointer">Все</button>
+          ${S.barbers.map(b=>`<button onclick="Admin.filterBarber(${b.id})" style="padding:6px 12px;border-radius:20px;border:1px solid ${S.adminSelBarber===b.id?'var(--gold)':'var(--bg5)'};background:${S.adminSelBarber===b.id?'var(--gold-dim)':'transparent'};color:${S.adminSelBarber===b.id?'var(--gold)':'var(--muted)'};font-size:12px;cursor:pointer">${b.name}</button>`).join('')}
+        </div>`;
+
+      let weekHtml=`<div style="display:flex;gap:4px;margin-bottom:12px;overflow-x:auto">
         ${weekDates.map(ds=>{
           const d=new Date(ds+'T12:00:00'),dow=d.getDay(),isT=ds===today_s,isSel=ds===S.adminSelDate;
-          const cnt=S.bookings.filter(b=>b.date===ds&&b.status!=='cancelled').length;
+          const cnt=filteredBks.filter(b=>b.date===ds&&b.status!=='cancelled').length;
           return `<div onclick="Admin.showDay('${ds}')" style="flex:1;min-width:42px;text-align:center;padding:8px 4px;border-radius:var(--rs);cursor:pointer;background:${isSel?'var(--gold-dim)':isT?'var(--bg4)':'var(--bg3)'};border:1px solid ${isSel?'var(--gold)':isT?'var(--gold-dark)':'var(--bg5)'};transition:all .15s">
             <div style="font-size:10px;color:var(--muted);margin-bottom:2px">${dayNames[dow]}</div>
             <div style="font-size:15px;color:${isT?'var(--gold)':'var(--cream)'};font-weight:${isT?700:400}">${d.getDate()}</div>
@@ -772,24 +787,29 @@ const Admin = {
           </div>`;
         }).join('')}
       </div>`;
-      weekHtml+=this.buildDayView(S.adminSelDate,bookingMap);
-      c.innerHTML=`<button class="btn btn-outline" style="margin-bottom:12px" onclick="Admin.openManual()">+ Ручная запись</button>${weekHtml}`;
-    }catch(e){document.getElementById('admin-content').innerHTML='<div class="empty"><div class="empty-text">Ошибка</div></div>';}
+
+      weekHtml+=this.buildDayView(S.adminSelDate, bookingMap, S.adminSelBarber);
+      c.innerHTML=`
+        <button class="btn btn-outline" style="margin-bottom:12px" onclick="Admin.openManual()">+ Ручная запись</button>
+        ${barberTabs}${weekHtml}`;
+    }catch(e){document.getElementById('admin-content').innerHTML='<div class="empty"><div class="empty-text">Ошибка: '+e.message+'</div></div>';}
   },
-  buildDayView(dateStr,bookingMap){
+
+  filterBarber(bid){S.adminSelBarber=bid;this.renderBookings();},
+  buildDayView(dateStr, bookingMap, filterBarberId){
     const d=new Date(dateStr+'T12:00:00');
     const df=d.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});
-    // Находим общее расписание на этот день
     const dow=d.getDay();
-    // Используем самое раннее открытие и самое позднее закрытие среди всех барберов
+    // Определяем временной диапазон
     let openMin=9*60, closeMin=21*60;
-    const scheds=Object.values(S.schedule).filter(s=>s.day_of_week===dow&&s.is_open);
+    const scheds=Object.values(S.schedule).filter(s=>s.day_of_week===dow&&s.is_open&&(!filterBarberId||s.barber_id===filterBarberId));
     if(scheds.length){openMin=Math.min(...scheds.map(s=>timeToMin(s.open_time)));closeMin=Math.max(...scheds.map(s=>timeToMin(s.close_time)));}
     const dayMap=bookingMap[dateStr]||{};
     const sb={pending:'badge-pending',done:'badge-done',cancelled:'badge-cancelled'};
     const sm={pending:'Ожидает',done:'Готово',cancelled:'Отменено'};
     const usedIds=new Set();
     let slotsHtml='';
+
     for(let t=openMin;t<closeMin;t+=30){
       const bks=dayMap[t]||[];
       const activeBks=bks.filter(b=>!usedIds.has(b.id));
@@ -805,7 +825,7 @@ const Admin = {
                 <div class="booking-time" style="margin-bottom:0">${bk.time.slice(0,5)} · ${bk.total_duration} мин</div>
                 <span class="badge ${sb[bk.status]||'badge-pending'}">${sm[bk.status]||bk.status}</span>
               </div>
-              ${bk.barber_name?`<div style="font-size:11px;color:var(--gold-dark);margin-top:2px">✂ ${bk.barber_name}</div>`:''}
+              ${bk.barber_name&&!filterBarberId?`<div style="font-size:11px;color:var(--gold-dark);margin-top:2px">✂ ${bk.barber_name}</div>`:''}
               <div class="booking-client" style="margin-top:4px">${bk.client_name||'Клиент'}${bk.client_phone?' · '+bk.client_phone:''}</div>
               <div id="bk-detail-${bk.id}" style="display:none">
                 <div class="booking-services" style="margin-top:4px">${svcs}</div>
@@ -819,14 +839,31 @@ const Admin = {
           </div>`;
         });
       } else {
+        // Показываем свободные слоты — если выбран барбер, проверяем его расписание
         const hh=String(Math.floor(t/60)).padStart(2,'0'),mm=String(t%60).padStart(2,'0');
-        slotsHtml+=`<div style="display:flex;gap:8px;margin-bottom:6px;align-items:center">
-          <div style="font-size:12px;color:var(--muted);width:38px;flex-shrink:0">${hh}:${mm}</div>
-          <div style="flex:1;height:32px;border:1px dashed var(--bg5);border-radius:var(--rs);cursor:pointer;display:flex;align-items:center;padding:0 10px;font-size:12px;color:var(--bg5);transition:all .15s" onmouseover="this.style.borderColor='var(--gold-dark)';this.style.color='var(--muted)'" onmouseout="this.style.borderColor='var(--bg5)';this.style.color='var(--bg5)'" onclick="Admin.openManualAt('${dateStr}','${hh}:${mm}')">свободно</div>
-        </div>`;
+        // Проверяем работает ли барбер в это время
+        let barberWorking=true;
+        if(filterBarberId){
+          const key=`${filterBarberId}_${dow}`;
+          const sched=S.schedule[key];
+          if(!sched||!sched.is_open) barberWorking=false;
+          else{const oMin=timeToMin(sched.open_time),cMin=timeToMin(sched.close_time);if(t<oMin||t>=cMin)barberWorking=false;}
+        }
+        if(barberWorking){
+          slotsHtml+=`<div style="display:flex;gap:8px;margin-bottom:6px;align-items:center">
+            <div style="font-size:12px;color:var(--muted);width:38px;flex-shrink:0">${hh}:${mm}</div>
+            <div style="flex:1;height:32px;border:1px dashed var(--bg5);border-radius:var(--rs);cursor:pointer;display:flex;align-items:center;padding:0 10px;font-size:12px;color:var(--bg5);transition:all .15s" onmouseover="this.style.borderColor='var(--gold-dark)';this.style.color='var(--muted)'" onmouseout="this.style.borderColor='var(--bg5)';this.style.color='var(--bg5)'" onclick="Admin.openManualAt('${dateStr}','${hh}:${mm}')">свободно</div>
+          </div>`;
+        }
       }
     }
-    return `<div class="sec-title">${df}</div><div style="background:var(--bg3);border:1px solid var(--bg5);border-radius:var(--r);padding:12px">${slotsHtml||'<div style="text-align:center;color:var(--muted);padding:16px;font-size:13px">Нет записей</div>'}</div>`;
+
+    // Если нет барберов с расписанием на этот день
+    if(!slotsHtml){
+      slotsHtml='<div style="text-align:center;color:var(--muted);padding:16px;font-size:13px">'+(filterBarberId?'Барбер не работает в этот день':'Нет записей')+'</div>';
+    }
+
+    return `<div class="sec-title">${df}</div><div style="background:var(--bg3);border:1px solid var(--bg5);border-radius:var(--r);padding:12px">${slotsHtml}</div>`;
   },
   showDay(ds){S.adminSelDate=ds;this.renderBookings();},
   toggleDetail(id){const el=document.getElementById('bk-detail-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';},
@@ -1055,11 +1092,20 @@ const Admin = {
         const close=(document.getElementById('close-'+dow)?.value||'21:00')+':00';
         const key=`${barberId}_${dow}`;
         const ex=S.schedule[key];
-        if(ex?.id)await SB.patch(`schedule?id=eq.${ex.id}`,{is_open:isOpen,open_time:open,close_time:close});
-        else await SB.post('schedule',{day_of_week:dow,barber_id:barberId,is_open:isOpen,open_time:open,close_time:close});
+        if(ex?.id){
+          await SB.patch(`schedule?id=eq.${ex.id}`,{is_open:isOpen,open_time:open,close_time:close});
+        } else {
+          // Сначала проверяем не существует ли уже запись
+          const existing=await SB.get(`schedule?barber_id=eq.${barberId}&day_of_week=eq.${dow}`)||[];
+          if(existing.length>0){
+            await SB.patch(`schedule?barber_id=eq.${barberId}&day_of_week=eq.${dow}`,{is_open:isOpen,open_time:open,close_time:close});
+          } else {
+            await SB.post('schedule',{day_of_week:dow,barber_id:barberId,is_open:isOpen,open_time:open,close_time:close});
+          }
+        }
       }
       showToast('График сохранён ✓');await loadAllSched();
-    }catch(e){showToast('Ошибка');}
+    }catch(e){console.error(e);showToast('Ошибка: '+e.message);}
   },
 
   // ── РУЧНАЯ ЗАПИСЬ ──
