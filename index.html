@@ -33,6 +33,14 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 .btn-outline{background:transparent;border:1px solid var(--gold);color:var(--gold)}.btn-outline:active{background:var(--gold-dim)}
 .btn-sm{padding:8px 14px;font-size:12px;width:auto;display:inline-block}
 .btn-icon{background:none;color:var(--gold);font-size:18px;padding:6px}
+/* BARBER CARDS */
+.barber-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.barber-card{background:var(--bg3);border:2px solid var(--bg5);border-radius:var(--r);padding:16px 12px;text-align:center;cursor:pointer;transition:all .2s}
+.barber-card:active,.barber-card.selected{border-color:var(--gold);background:var(--bg4)}
+.barber-avatar{width:72px;height:72px;border-radius:50%;background:var(--bg4);border:2px solid var(--gold-dim);margin:0 auto 10px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--gold)}
+.barber-avatar img{width:100%;height:100%;object-fit:cover}
+.barber-name{font-size:14px;color:var(--cream);font-weight:500}
+/* SERVICES */
 .svc-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--bg5)}
 .svc-item:last-child{border-bottom:none}
 .svc-check{width:22px;height:22px;border-radius:4px;border:1.5px solid var(--gold-dark);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;cursor:pointer}
@@ -43,28 +51,31 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 .svc-name{font-size:14px;color:var(--cream);line-height:1.3}
 .svc-meta{font-size:12px;color:var(--muted);margin-top:2px}
 .svc-price{font-size:14px;color:var(--gold);font-weight:600;flex-shrink:0}
+/* CALENDAR */
 .date-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px}
-.date-label{font-size:10px;text-align:center;color:var(--muted);padding:4px 0;letter-spacing:0.5px}
+.date-label{font-size:10px;text-align:center;color:var(--muted);padding:4px 0}
 .date-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:var(--rs);font-size:13px;cursor:pointer;border:1px solid transparent;transition:all .15s}
 .date-cell.today{border-color:var(--gold-dark);color:var(--gold)}
 .date-cell.selected{background:var(--gold);color:#0D0B09;font-weight:700}
-.date-cell.past{color:var(--muted);pointer-events:none;opacity:0.4}
-.date-cell.off{color:var(--muted);pointer-events:none;opacity:0.3}
+.date-cell.past,.date-cell.off{color:var(--muted);pointer-events:none;opacity:0.3}
 .date-cell.available:not(.selected):hover{background:var(--bg4)}
 .cal-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .cal-nav-btn{background:none;color:var(--gold);font-size:22px;padding:4px 12px}
 .cal-month{font-size:14px;letter-spacing:1px;color:var(--cream)}
+/* TIME SLOTS */
 .time-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px}
 .time-slot{padding:10px 4px;text-align:center;border-radius:var(--rs);border:1px solid var(--bg5);font-size:13px;cursor:pointer;transition:all .15s;color:var(--cream2)}
 .time-slot.selected{border-color:var(--gold);background:var(--gold-dim);color:var(--gold);font-weight:600}
 .time-slot.busy{background:var(--bg4);color:var(--muted);pointer-events:none;text-decoration:line-through;opacity:0.6}
 .time-slot.free:not(.selected):hover{border-color:var(--gold-dark)}
+/* SUMMARY */
 .summary-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bg5)}
 .summary-row:last-child{border-bottom:none}
 .summary-row.total{border-top:1px solid var(--gold-dim);margin-top:6px;padding-top:12px}
 .summary-label{font-size:13px;color:var(--muted)}
 .summary-val{font-size:13px;color:var(--cream)}
 .summary-val.gold{color:var(--gold);font-weight:700;font-size:15px}
+/* BOOKING CARDS */
 .booking-card{background:var(--bg3);border-left:3px solid var(--gold);border-radius:0 var(--r) var(--r) 0;padding:12px 14px;margin-bottom:8px}
 .booking-card.done{border-left-color:var(--success)}
 .booking-card.cancelled{border-left-color:var(--danger);opacity:0.6}
@@ -72,17 +83,21 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 .booking-client{font-size:14px;color:var(--cream)}
 .booking-services{font-size:12px;color:var(--muted);margin-top:3px}
 .booking-actions{display:flex;gap:8px;margin-top:10px}
+/* FORMS */
 .field{margin-bottom:14px}
 .field label{display:block;font-size:11px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
 .field input,.field select{width:100%;background:var(--bg3);border:1px solid var(--bg5);border-radius:var(--rs);padding:11px 13px;color:var(--cream);outline:none;transition:border-color .15s}
 .field input:focus,.field select:focus{border-color:var(--gold)}
 .field-row{display:flex;gap:10px}.field-row .field{flex:1}
+/* BADGES */
 .badge{display:inline-block;padding:3px 8px;border-radius:20px;font-size:10px;letter-spacing:1px;text-transform:uppercase;font-weight:600}
 .badge-pending{background:rgba(201,168,76,0.15);color:var(--gold)}
 .badge-done{background:rgba(39,174,96,0.15);color:#27AE60}
 .badge-cancelled{background:rgba(192,57,43,0.15);color:#C0392B}
 .badge-admin{background:rgba(201,168,76,0.2);color:var(--gold)}
+.badge-barber{background:rgba(93,202,165,0.15);color:#5DCAA5}
 .badge-client{background:rgba(107,96,80,0.2);color:var(--muted)}
+/* PROFILE */
 .profile-avatar{width:72px;height:72px;border-radius:50%;background:var(--bg3);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 12px;overflow:hidden}
 .profile-avatar img{width:100%;height:100%;object-fit:cover}
 .profile-name{font-size:18px;text-align:center;color:var(--cream);margin-bottom:4px}
@@ -91,6 +106,7 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 .hist-date{font-size:11px;color:var(--gold);letter-spacing:1px;margin-bottom:4px}
 .hist-services{font-size:13px;color:var(--cream);margin-bottom:4px}
 .hist-price{font-size:13px;color:var(--gold);font-weight:600}
+/* SCHEDULE */
 .day-toggle{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--bg5)}
 .day-toggle:last-child{border-bottom:none}
 .day-name{font-size:14px;color:var(--cream);width:60px}
@@ -102,12 +118,13 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 .time-range{display:flex;align-items:center;gap:6px}
 .time-input{width:72px;background:var(--bg3);border:1px solid var(--bg5);border-radius:var(--rs);padding:6px 8px;color:var(--cream);text-align:center;font-size:13px;outline:none}
 .time-input:focus{border-color:var(--gold)}
+/* MISC */
 .empty{text-align:center;padding:40px 20px;color:var(--muted)}
 .empty-icon{font-size:40px;margin-bottom:12px;opacity:0.5}
 .empty-text{font-size:14px;line-height:1.5}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;display:flex;align-items:flex-end}
 .modal-overlay.hidden{display:none}
-.modal{background:var(--bg2);border-radius:var(--r) var(--r) 0 0;padding:20px 16px 32px;width:100%;max-height:85vh;overflow-y:auto;border-top:1px solid var(--gold-dim)}
+.modal{background:var(--bg2);border-radius:var(--r) var(--r) 0 0;padding:20px 16px 32px;width:100%;max-height:92vh;overflow-y:auto;border-top:1px solid var(--gold-dim)}
 .modal-title{font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:16px;text-align:center}
 .step-bar{display:flex;gap:4px;padding:12px 16px 0}
 .step-dot{flex:1;height:3px;border-radius:2px;background:var(--bg5)}
@@ -122,12 +139,14 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 .admin-tab{flex-shrink:0;padding:11px 12px;background:none;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
 .admin-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
 .client-card{background:var(--bg3);border:1px solid var(--bg5);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
-.client-avatar{width:40px;height:40px;border-radius:50%;background:var(--bg4);border:1px solid var(--gold-dim);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.client-avatar{width:40px;height:40px;border-radius:50%;background:var(--bg4);border:1px solid var(--gold-dim);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;overflow:hidden}
+.client-avatar img{width:100%;height:100%;object-fit:cover}
 </style>
 </head>
 <body>
 <div id="app">
 
+<!-- ГЛАВНАЯ -->
 <div id="screen-home" class="screen active">
   <div class="hdr">
     <div class="hdr-logo"><span class="hdr-crown">♛</span><span class="hdr-name">Barbaleo</span></div>
@@ -140,13 +159,25 @@ input,select,textarea{font-family:inherit;font-size:inherit}
   </div>
 </div>
 
-<div id="screen-services" class="screen">
+<!-- ВЫБОР БАРБЕРА -->
+<div id="screen-barber" class="screen">
   <div class="hdr">
     <button class="hdr-back" onclick="Nav.go('home')">‹</button>
-    <span class="hdr-title">Выбор услуг</span>
+    <span class="hdr-title">Выберите барбера</span>
     <span style="width:40px"></span>
   </div>
-  <div class="step-bar"><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div></div>
+  <div class="step-bar"><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div></div>
+  <div class="content" id="barber-content"></div>
+</div>
+
+<!-- ВЫБОР УСЛУГ -->
+<div id="screen-services" class="screen">
+  <div class="hdr">
+    <button class="hdr-back" onclick="Nav.go('barber')">‹</button>
+    <span class="hdr-title" id="svc-screen-title">Выбор услуг</span>
+    <span style="width:40px"></span>
+  </div>
+  <div class="step-bar"><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div></div>
   <div class="content" id="services-content"></div>
   <div style="padding:12px 16px;background:var(--bg)">
     <div id="svc-summary" style="display:none" class="card gold-border">
@@ -160,29 +191,32 @@ input,select,textarea{font-family:inherit;font-size:inherit}
   </div>
 </div>
 
+<!-- ДАТА И ВРЕМЯ -->
 <div id="screen-datetime" class="screen">
   <div class="hdr">
     <button class="hdr-back" onclick="Nav.go('services')">‹</button>
     <span class="hdr-title">Дата и время</span>
     <span style="width:40px"></span>
   </div>
-  <div class="step-bar"><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div></div>
+  <div class="step-bar"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div></div>
   <div class="content" id="datetime-content"></div>
   <div style="padding:12px 16px;background:var(--bg)">
     <button class="btn btn-gold" onclick="Booking.nextToConfirm()" id="btn-next-confirm" disabled style="opacity:0.4">Далее →</button>
   </div>
 </div>
 
+<!-- ПОДТВЕРЖДЕНИЕ -->
 <div id="screen-confirm" class="screen">
   <div class="hdr">
     <button class="hdr-back" onclick="Nav.go('datetime')">‹</button>
     <span class="hdr-title">Подтверждение</span>
     <span style="width:40px"></span>
   </div>
-  <div class="step-bar"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot active"></div></div>
+  <div class="step-bar"><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot done"></div><div class="step-dot active"></div></div>
   <div class="content" id="confirm-content"></div>
 </div>
 
+<!-- ПРОФИЛЬ -->
 <div id="screen-profile" class="screen">
   <div class="hdr">
     <div class="hdr-logo"><span class="hdr-crown">♛</span><span class="hdr-name">Barbaleo</span></div>
@@ -195,6 +229,7 @@ input,select,textarea{font-family:inherit;font-size:inherit}
   </div>
 </div>
 
+<!-- АДМИНКА -->
 <div id="screen-admin" class="screen">
   <div class="hdr">
     <div class="hdr-logo"><span class="hdr-crown">♛</span><span class="hdr-name">Админка</span></div>
@@ -202,6 +237,7 @@ input,select,textarea{font-family:inherit;font-size:inherit}
   </div>
   <div class="admin-tabs">
     <button class="admin-tab active" onclick="Admin.tab('bookings',this)">Записи</button>
+    <button class="admin-tab" onclick="Admin.tab('barbers',this)">Барберы</button>
     <button class="admin-tab" onclick="Admin.tab('services',this)">Услуги</button>
     <button class="admin-tab" onclick="Admin.tab('schedule',this)">График</button>
     <button class="admin-tab" onclick="Admin.tab('clients',this)">Клиенты</button>
@@ -210,6 +246,7 @@ input,select,textarea{font-family:inherit;font-size:inherit}
   <div class="content" id="admin-content"><div class="loader"><div class="spinner"></div></div></div>
 </div>
 
+<!-- MODAL: Услуга -->
 <div class="modal-overlay hidden" id="modal-service">
   <div class="modal">
     <div class="modal-title" id="modal-svc-title">Новая услуга</div>
@@ -227,20 +264,40 @@ input,select,textarea{font-family:inherit;font-size:inherit}
   </div>
 </div>
 
+<!-- MODAL: Барбер -->
+<div class="modal-overlay hidden" id="modal-barber">
+  <div class="modal">
+    <div class="modal-title" id="modal-barber-title">Новый барбер</div>
+    <input type="hidden" id="barber-edit-id">
+    <div class="field"><label>Имя</label><input id="barber-name" type="text" placeholder="Имя барбера"></div>
+    <div class="field"><label>Фото (URL)</label><input id="barber-photo" type="url" placeholder="https://..."></div>
+    <div class="field"><label>Telegram ID (для уведомлений)</label><input id="barber-tg-id" type="text" placeholder="123456789"></div>
+    <div style="display:flex;gap:10px;margin-top:6px">
+      <button class="btn btn-outline" style="flex:1;padding:12px" onclick="Modal.close('modal-barber')">Отмена</button>
+      <button class="btn btn-gold" style="flex:1;padding:12px" onclick="Admin.saveBarber()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Ручная запись -->
 <div class="modal-overlay hidden" id="modal-manual">
   <div class="modal" style="max-height:92vh">
     <div class="modal-title">Ручная запись</div>
-
-    <!-- ШАГ 1: имя + телефон -->
     <div id="manual-step1">
-      <div class="field"><label>Имя клиента *</label><input id="m-name" type="text" placeholder="Имя клиента" autocomplete="name"></div>
-      <div class="field"><label>Телефон *</label><input id="m-phone" type="tel" placeholder="+7 900 000-00-00" autocomplete="tel"></div>
-      <button class="btn btn-gold" style="margin-top:4px" onclick="Admin.manualStep2()">Далее → Выбор услуг</button>
+      <div class="field"><label>Имя клиента *</label><input id="m-name" type="text" placeholder="Имя клиента"></div>
+      <div class="field"><label>Телефон *</label><input id="m-phone" type="tel" placeholder="+7..."></div>
+      <button class="btn btn-gold" onclick="Admin.manualStep2()">Далее → Барбер</button>
       <button class="btn btn-outline" style="margin-top:8px" onclick="Modal.close('modal-manual')">Отмена</button>
     </div>
-
-    <!-- ШАГ 2: услуги -->
     <div id="manual-step2" style="display:none">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Выберите барбера</div>
+      <div id="m-barber-list"></div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn btn-outline" style="flex:1;padding:12px" onclick="Admin.manualBack(1)">‹ Назад</button>
+        <button class="btn btn-gold" style="flex:1;padding:12px" id="m-btn-step3" disabled style="opacity:0.4" onclick="Admin.manualStep3()">Далее → Услуги</button>
+      </div>
+    </div>
+    <div id="manual-step3" style="display:none">
       <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Выберите услуги</div>
       <div id="m-svc-list"></div>
       <div id="m-svc-summary" style="display:none;margin-top:10px;padding:10px;background:var(--bg4);border-radius:var(--rs)">
@@ -251,21 +308,18 @@ input,select,textarea{font-family:inherit;font-size:inherit}
         <div style="font-size:11px;color:var(--muted);margin-top:2px" id="m-svc-dur"></div>
       </div>
       <div style="display:flex;gap:8px;margin-top:12px">
-        <button class="btn btn-outline" style="flex:1;padding:12px" onclick="Admin.manualBack(1)">‹ Назад</button>
-        <button class="btn btn-gold" style="flex:1;padding:12px" id="m-btn-step3" disabled style="opacity:0.4" onclick="Admin.manualStep3()">Выбрать дату →</button>
+        <button class="btn btn-outline" style="flex:1;padding:12px" onclick="Admin.manualBack(2)">‹ Назад</button>
+        <button class="btn btn-gold" style="flex:1;padding:12px" id="m-btn-step4" disabled style="opacity:0.4" onclick="Admin.manualStep4()">Выбрать дату →</button>
       </div>
     </div>
-
-    <!-- ШАГ 3: дата + время -->
-    <div id="manual-step3" style="display:none">
+    <div id="manual-step4" style="display:none">
       <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Выберите дату и время</div>
       <div id="m-cal"></div>
       <div style="display:flex;gap:8px;margin-top:12px">
-        <button class="btn btn-outline" style="flex:1;padding:12px" onclick="Admin.manualBack(2)">‹ Назад</button>
+        <button class="btn btn-outline" style="flex:1;padding:12px" onclick="Admin.manualBack(3)">‹ Назад</button>
         <button class="btn btn-gold" style="flex:1;padding:12px" id="m-btn-save" disabled style="opacity:0.4" onclick="Admin.saveManual()">Записать</button>
       </div>
     </div>
-
   </div>
 </div>
 
@@ -300,17 +354,17 @@ if (TG) { TG.expand(); TG.setHeaderColor('#0D0B09'); TG.setBackgroundColor('#0D0
 const TG_USER = TG?.initDataUnsafe?.user || null;
 
 const S = {
-  services: [], schedule: {}, daysOff: {}, bookings: [],
-  selSvcs: [], selDate: null, selTime: null,
+  services: [], barbers: [], schedule: {}, daysOff: {}, bookings: [],
+  selBarber: null, selSvcs: [], selDate: null, selTime: null,
   calY: new Date().getFullYear(), calM: new Date().getMonth(),
   schY: new Date().getFullYear(), schM: new Date().getMonth(),
+  schedSelBarber: null,
   adminTab: 'bookings', adminSelDate: null,
-  manualSelSvcs: [], manualSelDate: null, manualSelTime: null,
+  manualSelBarber: null, manualSelSvcs: [], manualSelDate: null, manualSelTime: null,
   manualCalY: new Date().getFullYear(), manualCalM: new Date().getMonth(),
   histY: new Date().getFullYear(), histM: new Date().getMonth(), histSelDate: null,
 };
 
-// ── UTILS ─────────────────────────────────────
 function showToast(msg, dur=2500) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
@@ -318,58 +372,82 @@ function showToast(msg, dur=2500) {
 }
 const Modal = { open: id => document.getElementById(id).classList.remove('hidden'), close: id => document.getElementById(id).classList.add('hidden') };
 
-// localDateStr — YYYY-MM-DD в локальном времени (исправляет баг с UTC)
-function localDateStr(d) {
-  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-}
+function localDateStr(d) { return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 function todayStr() { return localDateStr(new Date()); }
+function timeToMin(t) { const p=t.split(':'); return parseInt(p[0])*60+parseInt(p[1]); }
 
-// Разбираем время "HH:MM:SS" или "HH:MM" в минуты
-function timeToMin(t) { const p = t.split(':'); return parseInt(p[0])*60 + parseInt(p[1]); }
-
-// isOff — день закрыт (по расписанию недели или по разовому выходному)
-function isOff(dateStr) {
-  const dow = new Date(dateStr + 'T12:00:00').getDay();
-  const sched = S.schedule[dow];
-  return !sched || !sched.is_open || !!S.daysOff[dateStr];
+function isOff(dateStr, barberId) {
+  const dow = new Date(dateStr+'T12:00:00').getDay();
+  // Расписание конкретного барбера
+  const key = barberId ? `${barberId}_${dow}` : dow;
+  const sched = S.schedule[key] || S.schedule[dow];
+  if (!sched || !sched.is_open) return true;
+  if (S.daysOff[dateStr]) return true;
+  return false;
 }
 
-// getBusy — Set занятых стартовых слотов (каждые 30 мин) для конкретной даты
-function getBusy(dateStr) {
+function getBusy(dateStr, barberId) {
   const busy = new Set();
-  S.bookings.filter(b => b.date === dateStr && b.status !== 'cancelled').forEach(b => {
-    const start = timeToMin(b.time);
-    const dur = b.total_duration || 30;
-    // Блокируем каждый 30-минутный слот который попадает в диапазон записи
-    // Слот t заблокирован если start <= t < start+dur
-    for (let t = start; t < start + dur; t += 30) busy.add(t);
-  });
+  S.bookings
+    .filter(b => b.date === dateStr && b.status !== 'cancelled' && (!barberId || b.barber_id === barberId))
+    .forEach(b => {
+      const start = timeToMin(b.time);
+      const dur = b.total_duration || 30;
+      for (let t = start; t < start + dur; t += 30) busy.add(t);
+    });
   return busy;
 }
 
 // ── DATA ──────────────────────────────────────
+async function loadBarbers() {
+  S.barbers = await SB.get('barbers?order=sort_order.asc,name.asc&is_active=eq.true') || [];
+}
+async function loadAllBarbers() {
+  S.barbers = await SB.get('barbers?order=sort_order.asc,name.asc') || [];
+}
 async function loadSvcs(all=false) {
   const q = all ? 'services?order=sort_order.asc,name.asc' : 'services?order=sort_order.asc,name.asc&is_active=eq.true';
   S.services = await SB.get(q) || [];
 }
-async function loadSched() {
-  const rows = await SB.get('schedule') || []; S.schedule = {};
-  rows.forEach(r => S.schedule[r.day_of_week] = r);
+async function loadSched(barberId) {
+  // Загружаем расписание для конкретного барбера
+  const q = barberId ? `schedule?barber_id=eq.${barberId}` : 'schedule?barber_id=is.null';
+  const rows = await SB.get(q) || [];
+  rows.forEach(r => {
+    const key = barberId ? `${barberId}_${r.day_of_week}` : r.day_of_week;
+    S.schedule[key] = r;
+  });
 }
-async function loadBookings() {
-  S.bookings = await SB.get(`bookings?date=gte.${todayStr()}&status=neq.cancelled&order=date.asc,time.asc`) || [];
+async function loadAllSched() {
+  const rows = await SB.get('schedule') || [];
+  S.schedule = {};
+  rows.forEach(r => {
+    const key = r.barber_id ? `${r.barber_id}_${r.day_of_week}` : r.day_of_week;
+    S.schedule[key] = r;
+  });
 }
-async function loadDaysOff() {
-  const rows = await SB.get(`days_off?date=gte.${todayStr()}`) || []; S.daysOff = {};
+async function loadBookings(barberId) {
+  const today = todayStr();
+  const q = barberId
+    ? `bookings?date=gte.${today}&barber_id=eq.${barberId}&status=neq.cancelled&order=date.asc,time.asc`
+    : `bookings?date=gte.${today}&status=neq.cancelled&order=date.asc,time.asc`;
+  S.bookings = await SB.get(q) || [];
+}
+async function loadDaysOff(barberId) {
+  const today = todayStr();
+  const q = barberId ? `days_off?date=gte.${today}&barber_id=eq.${barberId}` : `days_off?date=gte.${today}`;
+  const rows = await SB.get(q) || [];
+  S.daysOff = {};
   rows.forEach(r => S.daysOff[r.date] = r.id);
 }
 
-// ── NAV ───────────────────────────────────────
+// ── NAV ──────────────────────────────────────
 const Nav = {
   go(screen) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById('screen-' + screen).classList.add('active');
+    document.getElementById('screen-'+screen).classList.add('active');
     if (screen==='home') Home.render();
+    if (screen==='barber') BarberPick.render();
     if (screen==='services') Services.render();
     if (screen==='datetime') DateTime.render();
     if (screen==='confirm') Confirm.render();
@@ -383,52 +461,44 @@ const Home = {
   async render() {
     const c = document.getElementById('home-content');
     c.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
-    await Promise.all([loadSched(), loadDaysOff()]);
+    await loadBarbers();
     c.innerHTML = `
       <div style="text-align:center;padding:28px 0 32px">
         <div style="font-size:36px;margin-bottom:8px">♛</div>
         <div style="font-size:22px;color:var(--cream);letter-spacing:3px;margin-bottom:4px">BARBALEO CLUB</div>
         <div style="font-size:11px;color:var(--muted);letter-spacing:3px">BARBERSHOP</div>
       </div>
-      <button class="btn btn-gold" onclick="Nav.go('services')" style="font-size:16px;padding:16px;margin-bottom:10px">✂ &nbsp;Записаться</button>
-      <div id="free-sec"></div>`;
-  },
+      <button class="btn btn-gold" onclick="Nav.go('barber')" style="font-size:16px;padding:16px">✂ &nbsp;Записаться</button>
+    `;
+  }
+};
 
-  async showFree() {
-    const sec = document.getElementById('free-sec');
-    sec.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
-    await loadBookings();
-    // Ближайшие 5 рабочих дней
-    const days = []; const now = new Date();
-    for (let i = 0; i < 30 && days.length < 5; i++) {
-      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i);
-      const ds = localDateStr(d);
-      if (!isOff(ds)) days.push(ds);
+// ── BARBER PICK ────────────────────────────────
+const BarberPick = {
+  render() {
+    const c = document.getElementById('barber-content');
+    if (!S.barbers.length) {
+      c.innerHTML = '<div class="empty"><div class="empty-icon">✂</div><div class="empty-text">Нет доступных барберов</div></div>';
+      return;
     }
-    if (!days.length) { sec.innerHTML = '<div class="empty"><div class="empty-text">Нет доступных дней</div></div>'; return; }
-    const daysFull = ['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
-    const today = todayStr();
-    sec.innerHTML = `
-      <div class="sec-title">Свободное время</div>
-      ${days.map(ds => {
-        const d = new Date(ds + 'T12:00:00');
-        const dow = d.getDay();
-        const sched = S.schedule[dow];
-        const openMin = timeToMin(sched.open_time);
-        const closeMin = timeToMin(sched.close_time);
-        const busy = getBusy(ds);
-        const slots = [];
-        for (let t = openMin; t + 30 <= closeMin; t += 30) {
-          // Слот свободен если 30-мин блок не занят
-          if (!busy.has(t)) slots.push(String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0'));
-        }
-        const lbl = ds===today ? 'Сегодня' : daysFull[dow]+', '+d.toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
-        return `<div class="card gold-border" style="margin-bottom:10px">
-          <div style="font-size:13px;color:var(--gold);font-weight:600;margin-bottom:8px">${lbl}</div>
-          <div style="display:flex;flex-wrap:wrap;gap:6px">
-            ${slots.length ? slots.map(t=>`<div style="padding:5px 10px;border:1px solid var(--bg5);border-radius:6px;font-size:12px;color:var(--cream2)">${t}</div>`).join('') : '<div style="font-size:12px;color:var(--muted)">Все слоты заняты</div>'}
-          </div></div>`;
-      }).join('')}`;
+    c.innerHTML = `
+      <div class="sec-title">Выберите барбера</div>
+      <div class="barber-grid">
+        ${S.barbers.map(b => `
+          <div class="barber-card ${S.selBarber?.id === b.id ? 'selected' : ''}" onclick="BarberPick.select(${b.id})">
+            <div class="barber-avatar">
+              ${b.photo_url ? `<img src="${b.photo_url}" alt="${b.name}" onerror="this.parentNode.textContent='✂'">` : '✂'}
+            </div>
+            <div class="barber-name">${b.name}</div>
+          </div>`).join('')}
+      </div>`;
+  },
+  async select(id) {
+    S.selBarber = S.barbers.find(b => b.id === id);
+    S.selSvcs = []; S.selDate = null; S.selTime = null;
+    document.getElementById('svc-screen-title').textContent = S.selBarber.name;
+    await loadSvcs();
+    Nav.go('services');
   }
 };
 
@@ -441,17 +511,26 @@ const Booking = {
     if (i===-1) S.selSvcs.push(id); else S.selSvcs.splice(i,1);
     Services.updateSummary();
   },
-  totalDur() { return S.selSvcs.reduce((s,id) => { const x = S.services.find(v=>v.id===id); return s+(x?x.duration_minutes:0); }, 0); },
-  totalPrice() { return S.selSvcs.reduce((s,id) => { const x = S.services.find(v=>v.id===id); return s+(x?x.price:0); }, 0); },
+  totalDur() { return S.selSvcs.reduce((s,id)=>{const x=S.services.find(v=>v.id===id);return s+(x?x.duration_minutes:0);},0); },
+  totalPrice() { return S.selSvcs.reduce((s,id)=>{const x=S.services.find(v=>v.id===id);return s+(x?x.price:0);},0); },
   async submit(name, phone) {
     const btn = document.getElementById('btn-submit');
     if (btn) { btn.disabled=true; btn.textContent='Сохраняем...'; }
     try {
-      const svcs = S.selSvcs.map(id => { const s=S.services.find(v=>v.id===id); return {id,name:s.name,price:s.price,duration:s.duration_minutes}; });
-      const bk = { date:S.selDate, time:S.selTime+':00', services:svcs, total_price:this.totalPrice(), total_duration:this.totalDur(), client_name:name, client_phone:phone||null, client_telegram_id:TG_USER?String(TG_USER.id):null, client_telegram_username:TG_USER?TG_USER.username:null, reminder_sent:false, status:'pending' };
+      const svcs = S.selSvcs.map(id=>{const s=S.services.find(v=>v.id===id);return{id,name:s.name,price:s.price,duration:s.duration_minutes};});
+      const bk = {
+        date: S.selDate, time: S.selTime+':00',
+        services: svcs, total_price: this.totalPrice(), total_duration: this.totalDur(),
+        client_name: name, client_phone: phone||null,
+        client_telegram_id: TG_USER?String(TG_USER.id):null,
+        client_telegram_username: TG_USER?TG_USER.username:null,
+        barber_id: S.selBarber?.id||null,
+        barber_name: S.selBarber?.name||null,
+        reminder_sent: false, status: 'pending',
+      };
       await SB.post('bookings', bk);
       try { await fetch(CONFIG.BOT_URL+'/notify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({booking:bk})}); } catch(e) {}
-      S.selSvcs=[]; S.selDate=null; S.selTime=null;
+      S.selSvcs=[]; S.selDate=null; S.selTime=null; S.selBarber=null;
       document.getElementById('confirm-content').innerHTML = `
         <div style="text-align:center;padding:50px 20px">
           <div style="font-size:56px;margin-bottom:16px;color:var(--gold)">✓</div>
@@ -459,7 +538,7 @@ const Booking = {
           <div style="font-size:14px;color:var(--muted);line-height:1.7">Ждём вас в барбершопе.${TG_USER?'<br>Напоминание придёт за 3 часа.':''}</div>
           <button class="btn btn-outline" style="margin-top:30px" onclick="Nav.go('home')">На главную</button>
         </div>`;
-    } catch(e) { showToast('Ошибка. Попробуйте снова.'); if (btn){btn.disabled=false;btn.textContent='Подтвердить запись';} }
+    } catch(e) { showToast('Ошибка. Попробуйте снова.'); if(btn){btn.disabled=false;btn.textContent='Подтвердить запись';} }
   }
 };
 
@@ -481,7 +560,7 @@ const Services = {
     this.updateSummary();
   },
   updateSummary() {
-    S.services.forEach(s => { const el=document.getElementById('chk-'+s.id); if(el) el.className='svc-check'+(S.selSvcs.includes(s.id)?' checked':''); });
+    S.services.forEach(s=>{const el=document.getElementById('chk-'+s.id);if(el)el.className='svc-check'+(S.selSvcs.includes(s.id)?' checked':'');});
     const btn=document.getElementById('btn-next-date'), sum=document.getElementById('svc-summary');
     if (S.selSvcs.length) {
       document.getElementById('svc-total-price').textContent=Booking.totalPrice().toLocaleString()+' ₽';
@@ -496,28 +575,24 @@ const DateTime = {
   async render() {
     const c = document.getElementById('datetime-content');
     c.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
-    await Promise.all([loadSched(), loadBookings(), loadDaysOff()]);
+    const bid = S.selBarber?.id;
+    await Promise.all([loadAllSched(), loadBookings(bid), loadDaysOff(bid)]);
     this.renderCal();
   },
   renderCal() {
     const c = document.getElementById('datetime-content');
-    const y=S.calY, m=S.calM;
-    const monthNames=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-    const dayLabels=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
-    const today=todayStr();
-    const firstDow=new Date(y,m,1).getDay();
-    const lastDay=new Date(y,m+1,0).getDate();
+    const y=S.calY, m=S.calM, bid=S.selBarber?.id;
+    const mNames=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+    const dLabels=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+    const today=todayStr(), firstDow=new Date(y,m,1).getDay(), lastDay=new Date(y,m+1,0).getDate();
     let cells='';
     for(let i=0;i<firstDow;i++) cells+='<div></div>';
     for(let d=1;d<=lastDay;d++){
       const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-      const past=ds<today, off=isOff(ds), sel=ds===S.selDate, tod=ds===today;
+      const past=ds<today, off=isOff(ds,bid), sel=ds===S.selDate, tod=ds===today;
       let cls='date-cell';
-      if(past) cls+=' past';
-      else if(off) cls+=' off';
-      else cls+=' available';
-      if(tod&&!past) cls+=' today';
-      if(sel) cls+=' selected';
+      if(past) cls+=' past'; else if(off) cls+=' off'; else cls+=' available';
+      if(tod&&!past) cls+=' today'; if(sel) cls+=' selected';
       cells+=`<div class="${cls}" ${(!past&&!off)?`onclick="DateTime.pickDate('${ds}')"`:''} >${d}</div>`;
     }
     c.innerHTML=`
@@ -525,10 +600,10 @@ const DateTime = {
       <div class="card">
         <div class="cal-nav">
           <button class="cal-nav-btn" onclick="DateTime.prevM()">‹</button>
-          <div class="cal-month">${monthNames[m]} ${y}</div>
+          <div class="cal-month">${mNames[m]} ${y}</div>
           <button class="cal-nav-btn" onclick="DateTime.nextM()">›</button>
         </div>
-        <div class="date-grid">${dayLabels.map(l=>`<div class="date-label">${l}</div>`).join('')}</div>
+        <div class="date-grid">${dLabels.map(l=>`<div class="date-label">${l}</div>`).join('')}</div>
         <div class="date-grid">${cells}</div>
       </div>
       ${S.selDate?`<div class="sec-title">Выберите время</div><div class="card">${this.renderSlots(S.selDate)}</div>`:''}`;
@@ -536,36 +611,29 @@ const DateTime = {
     btn.disabled=!(S.selDate&&S.selTime); btn.style.opacity=(S.selDate&&S.selTime)?1:0.4;
   },
   renderSlots(dateStr) {
-    const dow=new Date(dateStr+'T12:00:00').getDay();
-    const sched=S.schedule[dow];
+    const bid=S.selBarber?.id, dow=new Date(dateStr+'T12:00:00').getDay();
+    const key=bid?`${bid}_${dow}`:dow;
+    const sched=S.schedule[key]||S.schedule[dow];
     if(!sched||!sched.is_open) return '<div style="color:var(--muted);font-size:13px">Выходной день</div>';
     const dur=Booking.totalDur()||30;
-    const openMin=timeToMin(sched.open_time);
-    const closeMin=timeToMin(sched.close_time);
-    const busy=getBusy(dateStr);
-    // Если сегодня — блокируем прошедшие слоты
-    const isToday = dateStr === todayStr();
-    const now = new Date();
-    const nowMin = isToday ? now.getHours()*60 + now.getMinutes() : 0;
+    const openMin=timeToMin(sched.open_time), closeMin=timeToMin(sched.close_time);
+    const busy=getBusy(dateStr, bid);
+    const isToday=dateStr===todayStr(), now=new Date(), nowMin=isToday?now.getHours()*60+now.getMinutes():0;
     const slots=[];
     for(let t=openMin;t+dur<=closeMin;t+=30){
-      // Слот в прошлом если сегодня и время уже прошло (добавляем 30 мин буфер)
-      const isPast = isToday && t < nowMin + 30;
-      let isBusy = isPast;
-      if (!isBusy) {
-        for(let bl=t;bl<t+dur;bl+=30){if(busy.has(bl)){isBusy=true;break;}}
-      }
-      const hh=String(Math.floor(t/60)).padStart(2,'0'), mm=String(t%60).padStart(2,'0');
+      const isPast=isToday&&t<nowMin+30;
+      let isBusy=isPast;
+      if(!isBusy){for(let bl=t;bl<t+dur;bl+=30){if(busy.has(bl)){isBusy=true;break;}}}
+      const hh=String(Math.floor(t/60)).padStart(2,'0'),mm=String(t%60).padStart(2,'0');
       slots.push({ts:`${hh}:${mm}`,busy:isBusy});
     }
     if(!slots.length) return '<div style="color:var(--muted);font-size:13px">Нет доступных слотов</div>';
-    return `<div class="time-grid">${slots.map(s=>`
-      <div class="time-slot ${s.busy?'busy':'free'} ${S.selTime===s.ts?'selected':''}" onclick="${s.busy?'':` DateTime.pickTime('${s.ts}')`}">${s.ts}</div>`).join('')}</div>`;
+    return `<div class="time-grid">${slots.map(s=>`<div class="time-slot ${s.busy?'busy':'free'} ${S.selTime===s.ts?'selected':''}" onclick="${s.busy?'':` DateTime.pickTime('${s.ts}')`}">${s.ts}</div>`).join('')}</div>`;
   },
-  pickDate(ds) { S.selDate=ds; S.selTime=null; document.getElementById('btn-next-confirm').disabled=true; document.getElementById('btn-next-confirm').style.opacity=0.4; this.renderCal(); },
-  pickTime(t) { S.selTime=t; document.getElementById('btn-next-confirm').disabled=false; document.getElementById('btn-next-confirm').style.opacity=1; this.renderCal(); },
-  prevM() { if(S.calM===0){S.calM=11;S.calY--;}else S.calM--; this.renderCal(); },
-  nextM() { if(S.calM===11){S.calM=0;S.calY++;}else S.calM++; this.renderCal(); },
+  pickDate(ds){S.selDate=ds;S.selTime=null;document.getElementById('btn-next-confirm').disabled=true;document.getElementById('btn-next-confirm').style.opacity=0.4;this.renderCal();},
+  pickTime(t){S.selTime=t;document.getElementById('btn-next-confirm').disabled=false;document.getElementById('btn-next-confirm').style.opacity=1;this.renderCal();},
+  prevM(){if(S.calM===0){S.calM=11;S.calY--;}else S.calM--;this.renderCal();},
+  nextM(){if(S.calM===11){S.calM=0;S.calY++;}else S.calM++;this.renderCal();},
 };
 
 // ── CONFIRM ───────────────────────────────────
@@ -578,6 +646,7 @@ const Confirm = {
     c.innerHTML=`
       <div class="sec-title">Ваша запись</div>
       <div class="card gold-border">
+        ${S.selBarber?`<div class="summary-row"><span class="summary-label">Барбер</span><span class="summary-val">${S.selBarber.name}</span></div>`:''}
         <div class="summary-row"><span class="summary-label">Дата</span><span class="summary-val">${df}</span></div>
         <div class="summary-row"><span class="summary-label">Время</span><span class="summary-val">${S.selTime}</span></div>
         ${svcs.map(s=>`<div class="summary-row"><span class="summary-label">${s.name}</span><span class="summary-val">${s.price.toLocaleString()} ₽</span></div>`).join('')}
@@ -627,380 +696,201 @@ const Profile = {
         </div>
         <div class="sec-title">История</div>
         ${bks.length?bks.map(b=>{
-          const canCancel = b.status==='pending' && b.date >= today;
-          return `
-          <div class="hist-item">
+          const canCancel=b.status==='pending'&&b.date>=today;
+          return `<div class="hist-item">
             <div style="display:flex;justify-content:space-between;align-items:flex-start">
               <div>
                 <div class="hist-date">${new Date(b.date+'T12:00:00').toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'short'})} · ${b.time.slice(0,5)}</div>
+                ${b.barber_name?`<div style="font-size:12px;color:var(--gold);margin-bottom:2px">✂ ${b.barber_name}</div>`:''}
                 <div class="hist-services">${(b.services||[]).map(s=>s.name).join(', ')}</div>
                 <div class="hist-price">${(b.total_price||0).toLocaleString()} ₽</div>
               </div>
               <span class="badge ${sb[b.status]||'badge-pending'}" style="flex-shrink:0;margin-left:8px">${sm[b.status]||b.status}</span>
             </div>
-            ${canCancel?`
-              <button onclick="Profile.cancelBooking(${b.id},'${b.date}','${b.time.slice(0,5)}')"
-                style="margin-top:10px;width:100%;padding:9px;background:transparent;border:1px solid var(--danger);border-radius:var(--rs);color:var(--danger);font-size:13px;cursor:pointer">
-                Отменить запись
-              </button>`:''}
+            ${canCancel?`<button onclick="Profile.cancel(${b.id},'${b.date}','${b.time.slice(0,5)}')" style="margin-top:10px;width:100%;padding:9px;background:transparent;border:1px solid var(--danger);border-radius:var(--rs);color:var(--danger);font-size:13px;cursor:pointer">Отменить запись</button>`:''}
           </div>`;
         }).join(''):'<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Записей пока нет</div></div>'}`;
     } catch(e){c.innerHTML='<div class="empty"><div class="empty-text">Ошибка загрузки</div></div>';}
   },
-
-  async cancelBooking(id, date, time) {
-    const d = new Date(date+'T12:00:00').toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});
-    if (!confirm(`Отменить запись?\n${d} в ${time}`)) return;
+  async cancel(id, date, time) {
+    const d=new Date(date+'T12:00:00').toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});
+    if(!confirm(`Отменить запись?\n${d} в ${time}`)) return;
     try {
-      // Получаем данные записи для уведомления
-      const rows = await SB.get(`bookings?id=eq.${id}`) || [];
-      const bk = rows[0];
-
-      // Отменяем в базе
-      await SB.patch(`bookings?id=eq.${id}`, { status: 'cancelled' });
-
-      // Уведомляем бота (админу)
-      if (bk) {
-        try {
-          await fetch(CONFIG.BOT_URL + '/notify-cancel', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ booking: bk }),
-          });
-        } catch(e) {}
-      }
-
+      const rows=await SB.get(`bookings?id=eq.${id}`)||[];
+      await SB.patch(`bookings?id=eq.${id}`,{status:'cancelled'});
+      if(rows[0]) try{await fetch(CONFIG.BOT_URL+'/notify-cancel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({booking:rows[0]})});}catch(e){}
       showToast('Запись отменена');
-      this.render(); // Перерисовываем профиль
-    } catch(e) {
-      showToast('Ошибка. Попробуйте снова.');
-    }
+      this.render();
+    } catch(e){showToast('Ошибка');}
   }
 };
 
 // ── ADMIN ─────────────────────────────────────
 const Admin = {
-  async render() { await this.renderTab(S.adminTab||'bookings'); },
-  tab(name,btn) {
+  async render(){await this.renderTab(S.adminTab||'bookings');},
+  tab(name,btn){
     document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));
     btn.classList.add('active'); S.adminTab=name; this.renderTab(name);
   },
-  async renderTab(name) {
+  async renderTab(name){
     const c=document.getElementById('admin-content');
     c.innerHTML='<div class="loader"><div class="spinner"></div></div>';
     if(name==='bookings') await this.renderBookings();
+    if(name==='barbers') await this.renderBarbers();
     if(name==='services') await this.renderServices();
     if(name==='schedule') await this.renderSchedule();
     if(name==='clients') await this.renderClients();
     if(name==='history') await this.renderHistory();
   },
 
-  // ЗАПИСИ
-  async renderBookings() {
+  // ── ЗАПИСИ ──
+  async renderBookings(){
     const c=document.getElementById('admin-content');
-    try {
-      await Promise.all([loadBookings(), loadSched(), loadDaysOff()]);
-
-      // Неделя начиная с сегодня
-      const today = new Date();
-      const weekDates = [];
-      for (let i = 0; i < 7; i++) {
-        const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i);
-        weekDates.push(localDateStr(d));
-      }
-
-      // Рабочие часы (берём из расписания — начало и конец дня)
-      const allScheds = Object.values(S.schedule).filter(s => s.is_open);
-      const globalOpen = allScheds.length ? Math.min(...allScheds.map(s => timeToMin(s.open_time))) : 9*60;
-      const globalClose = allScheds.length ? Math.max(...allScheds.map(s => timeToMin(s.close_time))) : 21*60;
-
-      // Временные слоты с шагом 30 мин
-      const timeSlots = [];
-      for (let t = globalOpen; t < globalClose; t += 30) {
-        timeSlots.push(t);
-      }
-
-      // Группируем записи по дате и времени (только не отменённые)
-      const bookingMap = {}; // dateStr -> timeMin -> booking
-      S.bookings.filter(b => b.status !== 'cancelled').forEach(b => {
-        if (!bookingMap[b.date]) bookingMap[b.date] = {};
-        const tMin = timeToMin(b.time);
-        bookingMap[b.date][tMin] = b;
+    try{
+      await Promise.all([loadAllBarbers(), loadAllSched(), loadBookings(), loadDaysOff()]);
+      const today=new Date();
+      const weekDates=[];
+      for(let i=0;i<7;i++){const d=new Date(today.getFullYear(),today.getMonth(),today.getDate()+i);weekDates.push(localDateStr(d));}
+      const bookingMap={};
+      S.bookings.filter(b=>b.status!=='cancelled').forEach(b=>{
+        if(!bookingMap[b.date])bookingMap[b.date]={};
+        const tMin=timeToMin(b.time);
+        if(!bookingMap[b.date][tMin])bookingMap[b.date][tMin]=[];
+        bookingMap[b.date][tMin].push(b);
       });
-
-      const dayNames = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
-      const today_s = todayStr();
-
-      // Строим HTML недели
-      let weekHtml = `
-        <div style="display:flex;gap:4px;margin-bottom:16px;overflow-x:auto">
-          ${weekDates.map(ds => {
-            const d = new Date(ds+'T12:00:00');
-            const dow = d.getDay();
-            const isToday = ds === today_s;
-            const off = isOff(ds);
-            const dayBookings = S.bookings.filter(b => b.date === ds && b.status !== 'cancelled');
-            const cnt = dayBookings.length;
-            return `
-              <div onclick="Admin.showDayDetail('${ds}')" style="flex:1;min-width:42px;text-align:center;padding:8px 4px;border-radius:var(--rs);cursor:pointer;background:${isToday?'var(--gold-dim)':'var(--bg3)'};border:1px solid ${isToday?'var(--gold)':'var(--bg5)'};transition:all .15s">
-                <div style="font-size:10px;color:var(--muted);margin-bottom:2px">${dayNames[dow]}</div>
-                <div style="font-size:15px;color:${isToday?'var(--gold)':off?'var(--muted)':'var(--cream)'};font-weight:${isToday?700:400}">${d.getDate()}</div>
-                ${cnt > 0 ? `<div style="width:6px;height:6px;border-radius:50%;background:var(--gold);margin:3px auto 0"></div>` : '<div style="height:9px"></div>'}
-              </div>`;
-          }).join('')}
-        </div>`;
-
-      // Детальный вид выбранного дня (по умолчанию сегодня)
-      if (!S.adminSelDate) S.adminSelDate = today_s;
-      weekHtml += this.buildDayView(S.adminSelDate, timeSlots, bookingMap);
-
-      c.innerHTML = `
-        <button class="btn btn-outline" style="margin-bottom:12px" onclick="Admin.openManual()">+ Ручная запись</button>
-        ${weekHtml}`;
-
-    } catch(e) { document.getElementById('admin-content').innerHTML='<div class="empty"><div class="empty-text">Ошибка</div></div>'; }
+      const dayNames=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+      const today_s=todayStr();
+      if(!S.adminSelDate)S.adminSelDate=today_s;
+      let weekHtml=`<div style="display:flex;gap:4px;margin-bottom:16px;overflow-x:auto">
+        ${weekDates.map(ds=>{
+          const d=new Date(ds+'T12:00:00'),dow=d.getDay(),isT=ds===today_s,isSel=ds===S.adminSelDate;
+          const cnt=S.bookings.filter(b=>b.date===ds&&b.status!=='cancelled').length;
+          return `<div onclick="Admin.showDay('${ds}')" style="flex:1;min-width:42px;text-align:center;padding:8px 4px;border-radius:var(--rs);cursor:pointer;background:${isSel?'var(--gold-dim)':isT?'var(--bg4)':'var(--bg3)'};border:1px solid ${isSel?'var(--gold)':isT?'var(--gold-dark)':'var(--bg5)'};transition:all .15s">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:2px">${dayNames[dow]}</div>
+            <div style="font-size:15px;color:${isT?'var(--gold)':'var(--cream)'};font-weight:${isT?700:400}">${d.getDate()}</div>
+            ${cnt>0?`<div style="width:6px;height:6px;border-radius:50%;background:var(--gold);margin:3px auto 0"></div>`:'<div style="height:9px"></div>'}
+          </div>`;
+        }).join('')}
+      </div>`;
+      weekHtml+=this.buildDayView(S.adminSelDate,bookingMap);
+      c.innerHTML=`<button class="btn btn-outline" style="margin-bottom:12px" onclick="Admin.openManual()">+ Ручная запись</button>${weekHtml}`;
+    }catch(e){document.getElementById('admin-content').innerHTML='<div class="empty"><div class="empty-text">Ошибка</div></div>';}
   },
-
-  buildDayView(dateStr, timeSlots, bookingMap) {
-    const d = new Date(dateStr+'T12:00:00');
-    const dow = d.getDay();
-    const sched = S.schedule[dow];
-    const df = d.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});
-    const off = isOff(dateStr);
-    const dayMap = bookingMap[dateStr] || {};
+  buildDayView(dateStr,bookingMap){
+    const d=new Date(dateStr+'T12:00:00');
+    const df=d.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});
+    // Находим общее расписание на этот день
+    const dow=d.getDay();
+    // Используем самое раннее открытие и самое позднее закрытие среди всех барберов
+    let openMin=9*60, closeMin=21*60;
+    const scheds=Object.values(S.schedule).filter(s=>s.day_of_week===dow&&s.is_open);
+    if(scheds.length){openMin=Math.min(...scheds.map(s=>timeToMin(s.open_time)));closeMin=Math.max(...scheds.map(s=>timeToMin(s.close_time)));}
+    const dayMap=bookingMap[dateStr]||{};
     const sb={pending:'badge-pending',done:'badge-done',cancelled:'badge-cancelled'};
     const sm={pending:'Ожидает',done:'Готово',cancelled:'Отменено'};
-
-    if (off) return `<div class="sec-title">${df}</div><div class="card"><div style="text-align:center;color:var(--muted);padding:16px">Выходной день</div></div>`;
-
-    const openMin = sched ? timeToMin(sched.open_time) : 9*60;
-    const closeMin = sched ? timeToMin(sched.close_time) : 21*60;
-
-    // Строим сетку слотов
-    let slotsHtml = '';
-    const usedBookings = new Set(); // чтобы не дублировать карточки
-
-    for (let t = openMin; t < closeMin; t += 30) {
-      const hh = String(Math.floor(t/60)).padStart(2,'0');
-      const mm = String(t%60).padStart(2,'0');
-      const timeStr = `${hh}:${mm}`;
-      const bk = dayMap[t];
-
-      if (bk && !usedBookings.has(bk.id)) {
-        usedBookings.add(bk.id);
-        const svcs = (bk.services||[]).map(s=>s.name).join(', ');
-        const blocks = Math.ceil((bk.total_duration||30)/30);
-        slotsHtml += `
-          <div style="display:flex;gap:8px;margin-bottom:6px;align-items:flex-start">
-            <div style="font-size:12px;color:var(--gold);width:38px;flex-shrink:0;padding-top:10px;font-weight:600">${timeStr}</div>
-            <div class="booking-card ${bk.status}" style="flex:1;margin-bottom:0;cursor:pointer" onclick="Admin.toggleBookingDetail(${bk.id})">
+    const usedIds=new Set();
+    let slotsHtml='';
+    for(let t=openMin;t<closeMin;t+=30){
+      const bks=dayMap[t]||[];
+      const activeBks=bks.filter(b=>!usedIds.has(b.id));
+      if(activeBks.length){
+        activeBks.forEach(bk=>{
+          usedIds.add(bk.id);
+          const svcs=(bk.services||[]).map(s=>s.name).join(', ');
+          const hh=String(Math.floor(t/60)).padStart(2,'0'),mm=String(t%60).padStart(2,'0');
+          slotsHtml+=`<div style="display:flex;gap:8px;margin-bottom:6px;align-items:flex-start">
+            <div style="font-size:12px;color:var(--gold);width:38px;flex-shrink:0;padding-top:10px;font-weight:600">${hh}:${mm}</div>
+            <div class="booking-card ${bk.status}" style="flex:1;margin-bottom:0;cursor:pointer" onclick="Admin.toggleDetail(${bk.id})">
               <div style="display:flex;justify-content:space-between;align-items:center">
                 <div class="booking-time" style="margin-bottom:0">${bk.time.slice(0,5)} · ${bk.total_duration} мин</div>
                 <span class="badge ${sb[bk.status]||'badge-pending'}">${sm[bk.status]||bk.status}</span>
               </div>
+              ${bk.barber_name?`<div style="font-size:11px;color:var(--gold-dark);margin-top:2px">✂ ${bk.barber_name}</div>`:''}
               <div class="booking-client" style="margin-top:4px">${bk.client_name||'Клиент'}${bk.client_phone?' · '+bk.client_phone:''}</div>
               <div id="bk-detail-${bk.id}" style="display:none">
                 <div class="booking-services" style="margin-top:4px">${svcs}</div>
                 <div style="font-size:13px;color:var(--gold);margin-top:4px">${(bk.total_price||0).toLocaleString()} ₽</div>
-                ${bk.status==='pending'?`
-                  <div class="booking-actions">
-                    <button class="btn btn-sm" style="background:rgba(39,174,96,0.15);color:#27AE60;border:1px solid rgba(39,174,96,0.3);border-radius:6px;flex:1" onclick="event.stopPropagation();Admin.setStatus(${bk.id},'done')">✓ Выполнено</button>
-                    <button class="btn btn-sm" style="background:rgba(192,57,43,0.15);color:#C0392B;border:1px solid rgba(192,57,43,0.3);border-radius:6px;flex:1" onclick="event.stopPropagation();Admin.setStatus(${bk.id},'cancelled')">✕ Отменить</button>
-                  </div>`:''}
+                ${bk.status==='pending'?`<div class="booking-actions">
+                  <button class="btn btn-sm" style="background:rgba(39,174,96,0.15);color:#27AE60;border:1px solid rgba(39,174,96,0.3);border-radius:6px;flex:1" onclick="event.stopPropagation();Admin.setStatus(${bk.id},'done')">✓ Выполнено</button>
+                  <button class="btn btn-sm" style="background:rgba(192,57,43,0.15);color:#C0392B;border:1px solid rgba(192,57,43,0.3);border-radius:6px;flex:1" onclick="event.stopPropagation();Admin.setStatus(${bk.id},'cancelled')">✕ Отменить</button>
+                </div>`:''}
               </div>
             </div>
           </div>`;
-        // Пропускаем занятые блоки
-        t += (blocks - 1) * 30;
-      } else if (!bk) {
-        slotsHtml += `
-          <div style="display:flex;gap:8px;margin-bottom:6px;align-items:center">
-            <div style="font-size:12px;color:var(--muted);width:38px;flex-shrink:0">${timeStr}</div>
-            <div style="flex:1;height:32px;border:1px dashed var(--bg5);border-radius:var(--rs);cursor:pointer;display:flex;align-items:center;padding:0 10px;font-size:12px;color:var(--bg5);transition:all .15s" onmouseover="this.style.borderColor='var(--gold-dark)';this.style.color='var(--muted)'" onmouseout="this.style.borderColor='var(--bg5)';this.style.color='var(--bg5)'" onclick="Admin.openManualAt('${dateStr}','${timeStr}')">свободно</div>
-          </div>`;
+        });
+      } else {
+        const hh=String(Math.floor(t/60)).padStart(2,'0'),mm=String(t%60).padStart(2,'0');
+        slotsHtml+=`<div style="display:flex;gap:8px;margin-bottom:6px;align-items:center">
+          <div style="font-size:12px;color:var(--muted);width:38px;flex-shrink:0">${hh}:${mm}</div>
+          <div style="flex:1;height:32px;border:1px dashed var(--bg5);border-radius:var(--rs);cursor:pointer;display:flex;align-items:center;padding:0 10px;font-size:12px;color:var(--bg5);transition:all .15s" onmouseover="this.style.borderColor='var(--gold-dark)';this.style.color='var(--muted)'" onmouseout="this.style.borderColor='var(--bg5)';this.style.color='var(--bg5)'" onclick="Admin.openManualAt('${dateStr}','${hh}:${mm}')">свободно</div>
+        </div>`;
       }
     }
-
-    return `
-      <div class="sec-title">${df}</div>
-      <div style="background:var(--bg3);border:1px solid var(--bg5);border-radius:var(--r);padding:12px">
-        ${slotsHtml || '<div style="text-align:center;color:var(--muted);padding:16px;font-size:13px">Нет записей</div>'}
-      </div>`;
+    return `<div class="sec-title">${df}</div><div style="background:var(--bg3);border:1px solid var(--bg5);border-radius:var(--r);padding:12px">${slotsHtml||'<div style="text-align:center;color:var(--muted);padding:16px;font-size:13px">Нет записей</div>'}</div>`;
+  },
+  showDay(ds){S.adminSelDate=ds;this.renderBookings();},
+  toggleDetail(id){const el=document.getElementById('bk-detail-'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';},
+  async setStatus(id,status){
+    try{await SB.patch(`bookings?id=eq.${id}`,{status});showToast(status==='done'?'Выполнено ✓':'Отменено');await loadBookings();this.renderBookings();}
+    catch(e){showToast('Ошибка');}
   },
 
-  showDayDetail(dateStr) {
-    S.adminSelDate = dateStr;
-    this.renderBookings();
+  // ── БАРБЕРЫ ──
+  async renderBarbers(){
+    const c=document.getElementById('admin-content');
+    await loadAllBarbers();
+    c.innerHTML=`
+      <button class="btn btn-outline" style="margin-bottom:12px" onclick="Admin.openBarberModal()">+ Добавить барбера</button>
+      ${S.barbers.map((b,i)=>`
+        <div class="card" style="display:flex;align-items:center;gap:12px">
+          <div class="client-avatar" style="width:48px;height:48px;flex-shrink:0">
+            ${b.photo_url?`<img src="${b.photo_url}" onerror="this.parentNode.textContent='✂'">`:' ✂'}
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:14px;color:var(--cream);font-weight:500">${b.name}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">${b.telegram_id?'TG: '+b.telegram_id:'Без Telegram'} · ${b.is_active?'Активен':'Скрыт'}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0">
+            <button class="btn-icon" style="font-size:12px;padding:2px 5px;color:${i===0?'var(--bg5)':'var(--gold)'}" onclick="Admin.moveBarber(${i},-1)" ${i===0?'disabled':''}>▲</button>
+            <button class="btn-icon" style="font-size:12px;padding:2px 5px;color:${i===S.barbers.length-1?'var(--bg5)':'var(--gold)'}" onclick="Admin.moveBarber(${i},1)" ${i===S.barbers.length-1?'disabled':''}>▼</button>
+          </div>
+          <button class="btn-icon" onclick="Admin.openBarberModal(${b.id})">✎</button>
+          <button class="btn-icon" onclick="Admin.toggleBarberActive(${b.id},${b.is_active})" style="color:${b.is_active?'var(--gold)':'var(--muted)'}">${b.is_active?'◉':'○'}</button>
+          <button class="btn-icon" style="color:var(--danger)" onclick="Admin.deleteBarber(${b.id},'${b.name.replace(/'/g,"\\'")}')">🗑</button>
+        </div>`).join('')}`;
   },
-
-  toggleBookingDetail(id) {
-    const el = document.getElementById('bk-detail-'+id);
-    if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+  openBarberModal(id){
+    const b=id?S.barbers.find(x=>x.id===id):null;
+    document.getElementById('modal-barber-title').textContent=b?'Редактировать':'Новый барбер';
+    document.getElementById('barber-edit-id').value=b?b.id:'';
+    document.getElementById('barber-name').value=b?b.name:'';
+    document.getElementById('barber-photo').value=b?(b.photo_url||''):'';
+    document.getElementById('barber-tg-id').value=b?(b.telegram_id||''):'';
+    Modal.open('modal-barber');
   },
-
-  openManualAt(date, time) {
-    this.openManual(date, time);
-  },
-
-  async setStatus(id, status) {
-    try {
-      await SB.patch(`bookings?id=eq.${id}`, { status });
-      showToast(status === 'done' ? 'Выполнено ✓' : 'Отменено');
-      // Перезагружаем записи чтобы слоты в календаре обновились
-      await loadBookings();
-      this.renderBookings();
-    } catch(e) { showToast('Ошибка'); }
-  },
-
-  async openManual(preDate, preTime) {
-    S.manualSelSvcs = [];
-    S.manualSelDate = preDate || null;
-    S.manualSelTime = preTime || null;
-    S.manualCalY = new Date().getFullYear();
-    S.manualCalM = new Date().getMonth();
-    await Promise.all([loadSvcs(true), loadBookings(), loadSched(), loadDaysOff()]);
-    document.getElementById('manual-step1').style.display = 'block';
-    document.getElementById('manual-step2').style.display = 'none';
-    document.getElementById('manual-step3').style.display = 'none';
-    document.getElementById('m-name').value = '';
-    document.getElementById('m-phone').value = '';
-    Modal.open('modal-manual');
-  },
-
-  manualStep2() {
-    const name = document.getElementById('m-name').value.trim();
-    const phone = document.getElementById('m-phone').value.trim();
-    if (!name) { showToast('Введите имя'); return; }
-    if (!phone) { showToast('Введите телефон'); return; }
-    if (phone.replace(/\D/g,'').length < 7) { showToast('Некорректный телефон'); return; }
-    S.manualSelSvcs = [];
-    document.getElementById('m-svc-list').innerHTML = S.services.filter(s=>s.is_active).map(s=>`
-      <div class="svc-item" onclick="Admin.manualToggleSvc(${s.id})">
-        <div class="svc-check" id="mchk-${s.id}"><svg viewBox="0 0 12 10"><polyline points="1,5 4.5,9 11,1"/></svg></div>
-        <div class="svc-info"><div class="svc-name">${s.name}</div><div class="svc-meta">${s.duration_minutes} мин</div></div>
-        <div class="svc-price">${s.price.toLocaleString()} ₽</div>
-      </div>`).join('');
-    const btn = document.getElementById('m-btn-step3');
-    btn.disabled = true; btn.style.opacity = 0.4;
-    document.getElementById('m-svc-summary').style.display = 'none';
-    document.getElementById('manual-step1').style.display = 'none';
-    document.getElementById('manual-step2').style.display = 'block';
-  },
-
-  manualToggleSvc(id) {
-    const i = S.manualSelSvcs.indexOf(id);
-    if (i===-1) S.manualSelSvcs.push(id); else S.manualSelSvcs.splice(i,1);
-    S.services.forEach(s => {
-      const el = document.getElementById('mchk-'+s.id);
-      if (el) el.className = 'svc-check'+(S.manualSelSvcs.includes(s.id)?' checked':'');
-    });
-    const btn = document.getElementById('m-btn-step3');
-    if (S.manualSelSvcs.length) {
-      const price = S.manualSelSvcs.reduce((sum,id)=>{const s=S.services.find(v=>v.id===id);return sum+(s?s.price:0);},0);
-      const dur = S.manualSelSvcs.reduce((sum,id)=>{const s=S.services.find(v=>v.id===id);return sum+(s?s.duration_minutes:0);},0);
-      document.getElementById('m-svc-total').textContent = price.toLocaleString()+' ₽';
-      document.getElementById('m-svc-dur').textContent = '~'+dur+' мин';
-      document.getElementById('m-svc-summary').style.display = 'block';
-      btn.disabled = false; btn.style.opacity = 1;
-    } else {
-      document.getElementById('m-svc-summary').style.display = 'none';
-      btn.disabled = true; btn.style.opacity = 0.4;
-    }
-  },
-
-  manualStep3() {
-    document.getElementById('manual-step2').style.display = 'none';
-    document.getElementById('manual-step3').style.display = 'block';
-    const btn = document.getElementById('m-btn-save');
-    btn.disabled = !(S.manualSelDate && S.manualSelTime);
-    btn.style.opacity = (S.manualSelDate && S.manualSelTime) ? 1 : 0.4;
-    this.renderManualCal();
-  },
-
-  renderManualCal() {
-    const cal = document.getElementById('m-cal'); if (!cal) return;
-    const y=S.manualCalY, m=S.manualCalM;
-    const mNames=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-    const dLabels=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
-    const today=todayStr(), firstDow=new Date(y,m,1).getDay(), lastDay=new Date(y,m+1,0).getDate();
-    let cells='';
-    for(let i=0;i<firstDow;i++) cells+='<div></div>';
-    for(let d=1;d<=lastDay;d++){
-      const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-      const past=ds<today, off=isOff(ds), sel=ds===S.manualSelDate, tod=ds===today;
-      let cls='date-cell';
-      if(past) cls+=' past'; else if(off) cls+=' off'; else cls+=' available';
-      if(tod&&!past) cls+=' today'; if(sel) cls+=' selected';
-      cells+=`<div class="${cls}" ${(!past&&!off)?`onclick="Admin.manualPickDate('${ds}')"`:''} >${d}</div>`;
-    }
-    let slotsHtml='';
-    if (S.manualSelDate) {
-      const dow=new Date(S.manualSelDate+'T12:00:00').getDay(), sched=S.schedule[dow];
-      if (sched&&sched.is_open) {
-        const dur=S.manualSelSvcs.reduce((sum,id)=>{const s=S.services.find(v=>v.id===id);return sum+(s?s.duration_minutes:0);},0)||30;
-        const openMin=timeToMin(sched.open_time), closeMin=timeToMin(sched.close_time);
-        const busy=getBusy(S.manualSelDate);
-        const isToday = S.manualSelDate === todayStr();
-        const now = new Date();
-        const nowMin = isToday ? now.getHours()*60 + now.getMinutes() : 0;
-        const slots=[];
-        for(let t=openMin;t+dur<=closeMin;t+=30){
-          const isPast = isToday && t < nowMin + 30;
-          let isBusy = isPast;
-          if (!isBusy) {
-            for(let bl=t;bl<t+dur;bl+=30){if(busy.has(bl)){isBusy=true;break;}}
-          }
-          const hh=String(Math.floor(t/60)).padStart(2,'0'),mm=String(t%60).padStart(2,'0');
-          slots.push({ts:`${hh}:${mm}`,busy:isBusy});
-        }
-        slotsHtml=`<div style="font-size:10px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin:12px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--gold-dim)">Выберите время</div>
-          <div class="time-grid">${slots.map(s=>`<div class="time-slot ${s.busy?'busy':'free'} ${S.manualSelTime===s.ts?'selected':''}" onclick="${s.busy?'':` Admin.manualPickTime('${s.ts}')`}">${s.ts}</div>`).join('')}</div>`;
-      }
-    }
-    cal.innerHTML=`
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <button class="cal-nav-btn" onclick="Admin.manualPrevM()">‹</button>
-        <span style="font-size:14px;color:var(--cream)">${mNames[m]} ${y}</span>
-        <button class="cal-nav-btn" onclick="Admin.manualNextM()">›</button>
-      </div>
-      <div class="date-grid">${dLabels.map(l=>`<div class="date-label">${l}</div>`).join('')}</div>
-      <div class="date-grid">${cells}</div>${slotsHtml}`;
-  },
-
-  manualPickDate(ds) {
-    S.manualSelDate=ds; S.manualSelTime=null;
-    document.getElementById('m-btn-save').disabled=true;
-    document.getElementById('m-btn-save').style.opacity=0.4;
-    this.renderManualCal();
-  },
-  manualPickTime(t) {
-    S.manualSelTime=t;
-    document.getElementById('m-btn-save').disabled=false;
-    document.getElementById('m-btn-save').style.opacity=1;
-    this.renderManualCal();
-  },
-  manualPrevM(){if(S.manualCalM===0){S.manualCalM=11;S.manualCalY--;}else S.manualCalM--;this.renderManualCal();},
-  manualNextM(){if(S.manualCalM===11){S.manualCalM=0;S.manualCalY++;}else S.manualCalM++;this.renderManualCal();},
-  manualBack(toStep){
-    document.getElementById('manual-step1').style.display=toStep===1?'block':'none';
-    document.getElementById('manual-step2').style.display=toStep===2?'block':'none';
-    document.getElementById('manual-step3').style.display='none';
-  },
-
-  async saveManual() {
-    const name=document.getElementById('m-name').value.trim();
-    const phone=document.getElementById('m-phone').value.trim();
-    if(!name||!S.manualSelDate||!S.manualSelTime||!S.manualSelSvcs.length){showToast('Заполните все данные');return;}
-    const svcs=S.manualSelSvcs.map(id=>{const s=S.services.find(v=>v.id===id);return{id,name:s.name,price:s.price,duration:s.duration_minutes};});
+  async saveBarber(){
+    const id=document.getElementById('barber-edit-id').value;
+    const name=document.getElementById('barber-name').value.trim();
+    const photo=document.getElementById('barber-photo').value.trim()||null;
+    const tgId=document.getElementById('barber-tg-id').value.trim()||null;
+    if(!name){showToast('Введите имя');return;}
     try{
-      await SB.post('bookings',{date:S.manualSelDate,time:S.manualSelTime+':00',services:svcs,total_price:svcs.reduce((s,x)=>s+x.price,0),total_duration:svcs.reduce((s,x)=>s+x.duration,0),client_name:name,client_phone:phone||null,client_telegram_id:null,reminder_sent:false,status:'pending'});
-      Modal.close('modal-manual');showToast('Запись добавлена ✓');
-      S.adminSelDate=S.manualSelDate;this.renderBookings();
+      if(id)await SB.patch(`barbers?id=eq.${id}`,{name,photo_url:photo,telegram_id:tgId});
+      else await SB.post('barbers',{name,photo_url:photo,telegram_id:tgId,is_active:true,sort_order:999});
+      Modal.close('modal-barber');showToast('Сохранено ✓');this.renderBarbers();
     }catch(e){showToast('Ошибка сохранения');}
   },
+  async toggleBarberActive(id,cur){try{await SB.patch(`barbers?id=eq.${id}`,{is_active:!cur});this.renderBarbers();}catch(e){showToast('Ошибка');}},
+  async deleteBarber(id,name){if(!confirm(`Удалить барбера "${name}"?`))return;try{await SB.delete(`barbers?id=eq.${id}`);showToast('Удалено');this.renderBarbers();}catch(e){showToast('Ошибка');}},
+  async moveBarber(idx,dir){
+    const ni=idx+dir; if(ni<0||ni>=S.barbers.length)return;
+    [S.barbers[idx],S.barbers[ni]]=[S.barbers[ni],S.barbers[idx]];
+    try{await SB.patch(`barbers?id=eq.${S.barbers[idx].id}`,{sort_order:idx+1});await SB.patch(`barbers?id=eq.${S.barbers[ni].id}`,{sort_order:ni+1});this.renderBarbers();}
+    catch(e){showToast('Ошибка');this.renderBarbers();}
+  },
 
-  // УСЛУГИ
-  async renderServices() {
+  // ── УСЛУГИ ──
+  async renderServices(){
     const c=document.getElementById('admin-content');
     await loadSvcs(true);
     c.innerHTML=`
@@ -1025,33 +915,18 @@ const Admin = {
       </div>`;
     this.initDrag();
   },
-  initDrag() {
-    const list=document.getElementById('svc-list'); if(!list)return;
+  initDrag(){
+    const list=document.getElementById('svc-list');if(!list)return;
     let drag=null;
     list.querySelectorAll('.svc-sort-item').forEach(item=>{
       item.addEventListener('dragstart',e=>{drag=item;setTimeout(()=>item.style.opacity='0.4',0);e.dataTransfer.effectAllowed='move';});
       item.addEventListener('dragend',()=>{item.style.opacity='1';list.querySelectorAll('.svc-sort-item').forEach(i=>i.style.borderTopColor='');if(drag)Admin.saveDragOrder();drag=null;});
-      item.addEventListener('dragover',e=>{
-        e.preventDefault();if(!drag||item===drag)return;
-        list.querySelectorAll('.svc-sort-item').forEach(i=>i.style.borderTopColor='');
-        item.style.borderTopColor='var(--gold)';
-        const items=[...list.querySelectorAll('.svc-sort-item')];
-        if(items.indexOf(drag)<items.indexOf(item))item.after(drag);else item.before(drag);
-      });
+      item.addEventListener('dragover',e=>{e.preventDefault();if(!drag||item===drag)return;list.querySelectorAll('.svc-sort-item').forEach(i=>i.style.borderTopColor='');item.style.borderTopColor='var(--gold)';const items=[...list.querySelectorAll('.svc-sort-item')];if(items.indexOf(drag)<items.indexOf(item))item.after(drag);else item.before(drag);});
     });
   },
-  async saveDragOrder() {
-    const items=[...document.querySelectorAll('.svc-sort-item')];
-    try{for(let i=0;i<items.length;i++)await SB.patch(`services?id=eq.${items[i].dataset.id}`,{sort_order:i+1});showToast('Порядок сохранён ✓');}
-    catch(e){showToast('Ошибка');}
-  },
-  async moveSvc(idx,dir) {
-    const ni=idx+dir; if(ni<0||ni>=S.services.length)return;
-    [S.services[idx],S.services[ni]]=[S.services[ni],S.services[idx]];
-    try{await SB.patch(`services?id=eq.${S.services[idx].id}`,{sort_order:idx+1});await SB.patch(`services?id=eq.${S.services[ni].id}`,{sort_order:ni+1});this.renderServices();}
-    catch(e){showToast('Ошибка');this.renderServices();}
-  },
-  openSvc(id) {
+  async saveDragOrder(){const items=[...document.querySelectorAll('.svc-sort-item')];try{for(let i=0;i<items.length;i++)await SB.patch(`services?id=eq.${items[i].dataset.id}`,{sort_order:i+1});showToast('Порядок сохранён ✓');}catch(e){showToast('Ошибка');}},
+  async moveSvc(idx,dir){const ni=idx+dir;if(ni<0||ni>=S.services.length)return;[S.services[idx],S.services[ni]]=[S.services[ni],S.services[idx]];try{await SB.patch(`services?id=eq.${S.services[idx].id}`,{sort_order:idx+1});await SB.patch(`services?id=eq.${S.services[ni].id}`,{sort_order:ni+1});this.renderServices();}catch(e){showToast('Ошибка');this.renderServices();}},
+  openSvc(id){
     const s=id?S.services.find(x=>x.id===id):null;
     document.getElementById('modal-svc-title').textContent=s?'Редактировать':'Новая услуга';
     document.getElementById('svc-edit-id').value=s?s.id:'';
@@ -1061,56 +936,70 @@ const Admin = {
     document.getElementById('svc-desc').value=s?(s.description||''):'';
     Modal.open('modal-service');
   },
-  async saveService() {
+  async saveService(){
     const id=document.getElementById('svc-edit-id').value;
     const name=document.getElementById('svc-name').value.trim();
     const price=parseInt(document.getElementById('svc-price').value);
     const dur=parseInt(document.getElementById('svc-duration').value);
     const desc=document.getElementById('svc-desc').value.trim();
     if(!name||!price||!dur){showToast('Заполните все поля');return;}
-    try{
-      if(id)await SB.patch(`services?id=eq.${id}`,{name,price,duration_minutes:dur,description:desc});
-      else await SB.post('services',{name,price,duration_minutes:dur,description:desc,is_active:true,sort_order:999});
-      Modal.close('modal-service');showToast('Сохранено ✓');this.renderServices();
-    }catch(e){showToast('Ошибка');}
+    try{if(id)await SB.patch(`services?id=eq.${id}`,{name,price,duration_minutes:dur,description:desc});else await SB.post('services',{name,price,duration_minutes:dur,description:desc,is_active:true,sort_order:999});Modal.close('modal-service');showToast('Сохранено ✓');this.renderServices();}catch(e){showToast('Ошибка');}
   },
   async toggleActive(id,cur){try{await SB.patch(`services?id=eq.${id}`,{is_active:!cur});this.renderServices();}catch(e){showToast('Ошибка');}},
   async deleteSvc(id,name){if(!confirm(`Удалить "${name}"?`))return;try{await SB.delete(`services?id=eq.${id}`);showToast('Удалено');this.renderServices();}catch(e){showToast('Ошибка');}},
 
-  // ГРАФИК
-  async renderSchedule() {
+  // ── ГРАФИК ──
+  async renderSchedule(){
     const c=document.getElementById('admin-content');
-    await Promise.all([loadSched()]);
-    try{const rows=await SB.get('days_off?order=date.asc')||[];S.daysOff={};rows.forEach(r=>S.daysOff[r.date]=r.id);}catch(e){}
+    await Promise.all([loadAllBarbers(), loadAllSched()]);
+    // Если барберов нет — показываем общее расписание
+    if(!S.barbers.length){c.innerHTML='<div class="empty"><div class="empty-text">Сначала добавьте барберов</div></div>';return;}
+
+    const selBid=S.schedSelBarber||S.barbers[0]?.id;
+    S.schedSelBarber=selBid;
+    const selBarber=S.barbers.find(b=>b.id===selBid);
+
+    // Days off для выбранного барбера
+    try{
+      const rows=await SB.get(`days_off?barber_id=eq.${selBid}&order=date.asc`)||[];
+      S.daysOff={};rows.forEach(r=>S.daysOff[r.date]=r.id);
+    }catch(e){S.daysOff={};}
+
     const y=S.schY,m=S.schM;
     const mNames=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
     const dLabels=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
     const dNames=['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
     const today=todayStr();
-    const firstDow=new Date(y,m,1).getDay();
-    const lastDay=new Date(y,m+1,0).getDate();
+    const firstDow=new Date(y,m,1).getDay(),lastDay=new Date(y,m+1,0).getDate();
     let cells='';
     for(let i=0;i<firstDow;i++)cells+='<div></div>';
     for(let d=1;d<=lastDay;d++){
       const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
       const dow=new Date(ds+'T12:00:00').getDay();
-      const sched=S.schedule[dow];
-      const past=ds<today, weekOff=!sched||!sched.is_open, dayOff=!!S.daysOff[ds], tod=ds===today;
-      let cls='date-cell', style='';
-      if(past) cls+=' past';
-      else if(weekOff) cls+=' off';
+      const key=`${selBid}_${dow}`;
+      const sched=S.schedule[key];
+      const past=ds<today,weekOff=!sched||!sched.is_open,dayOff=!!S.daysOff[ds],tod=ds===today;
+      let cls='date-cell',style='';
+      if(past)cls+=' past';
+      else if(weekOff)cls+=' off';
       else if(dayOff){cls+=' available';style='background:rgba(192,57,43,0.25);color:#e57a72;border-color:rgba(192,57,43,0.4);';}
       else cls+=' available';
-      if(tod) cls+=' today';
-      cells+=`<div class="${cls}" style="${style}" ${(!past&&!weekOff)?`onclick="Admin.toggleDayOff('${ds}')"`:''} >${d}</div>`;
+      if(tod)cls+=' today';
+      cells+=`<div class="${cls}" style="${style}" ${(!past&&!weekOff)?`onclick="Admin.toggleDayOff('${ds}',${selBid})"`:''} >${d}</div>`;
     }
+
     c.innerHTML=`
-      <div class="sec-title">Выходные дни</div>
+      <div class="sec-title">Барбер</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        ${S.barbers.map(b=>`<button onclick="Admin.schedSelectBarber(${b.id})" style="padding:8px 14px;border-radius:20px;border:1px solid ${b.id===selBid?'var(--gold)':'var(--bg5)'};background:${b.id===selBid?'var(--gold-dim)':'transparent'};color:${b.id===selBid?'var(--gold)':'var(--muted)'};font-size:13px;cursor:pointer">${b.name}</button>`).join('')}
+      </div>
+
+      <div class="sec-title">Выходные дни — ${selBarber?.name}</div>
       <div class="card" style="margin-bottom:16px">
         <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Нажми на день — отметить/снять выходной</div>
         <div class="cal-nav">
           <button class="cal-nav-btn" onclick="Admin.schPrev()">‹</button>
-          <div class="cal-month">${mNames[m]} ${y}</div>
+          <span class="cal-month">${mNames[m]} ${y}</span>
           <button class="cal-nav-btn" onclick="Admin.schNext()">›</button>
         </div>
         <div class="date-grid">${dLabels.map(l=>`<div class="date-label">${l}</div>`).join('')}</div>
@@ -1121,15 +1010,17 @@ const Admin = {
             <div style="display:flex;flex-wrap:wrap;gap:6px">
               ${Object.keys(S.daysOff).sort().map(ds=>{
                 const df=new Date(ds+'T12:00:00').toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
-                return `<div style="padding:4px 8px;background:rgba(192,57,43,0.2);color:#e57a72;border-radius:6px;font-size:12px;cursor:pointer" onclick="Admin.toggleDayOff('${ds}')">${df} ✕</div>`;
+                return `<div style="padding:4px 8px;background:rgba(192,57,43,0.2);color:#e57a72;border-radius:6px;font-size:12px;cursor:pointer" onclick="Admin.toggleDayOff('${ds}',${selBid})">${df} ✕</div>`;
               }).join('')}
             </div>
           </div>`:''}
       </div>
-      <div class="sec-title">Рабочие часы</div>
+
+      <div class="sec-title">Рабочие часы — ${selBarber?.name}</div>
       <div class="card">
         ${[1,2,3,4,5,6,0].map(dow=>{
-          const s=S.schedule[dow]||{is_open:false,open_time:'09:00:00',close_time:'21:00:00'};
+          const key=`${selBid}_${dow}`;
+          const s=S.schedule[key]||{is_open:false,open_time:'09:00:00',close_time:'21:00:00'};
           return `<div class="day-toggle">
             <span class="day-name">${dNames[dow].slice(0,3)}</span>
             <div class="toggle-wrap">
@@ -1142,248 +1033,315 @@ const Admin = {
             </div>
           </div>`;}).join('')}
       </div>
-      <div style="padding-top:10px"><button class="btn btn-gold" onclick="Admin.saveSched()">Сохранить рабочие часы</button></div>`;
+      <div style="padding-top:10px"><button class="btn btn-gold" onclick="Admin.saveSched(${selBid})">Сохранить</button></div>`;
   },
-  async toggleDayOff(ds){
+  schedSelectBarber(bid){S.schedSelBarber=bid;this.renderSchedule();},
+  async toggleDayOff(ds,barberId){
     try{
-      if(S.daysOff[ds]){await SB.delete(`days_off?date=eq.${ds}`);delete S.daysOff[ds];showToast('Выходной снят');}
-      else{const r=await SB.post('days_off',{date:ds});S.daysOff[ds]=r?.[0]?.id||ds;showToast('Выходной добавлен');}
+      if(S.daysOff[ds]){await SB.delete(`days_off?date=eq.${ds}&barber_id=eq.${barberId}`);delete S.daysOff[ds];showToast('Выходной снят');}
+      else{const r=await SB.post('days_off',{date:ds,barber_id:barberId});S.daysOff[ds]=r?.[0]?.id||ds;showToast('Выходной добавлен');}
       this.renderSchedule();
     }catch(e){showToast('Ошибка');}
   },
   schPrev(){if(S.schM===0){S.schM=11;S.schY--;}else S.schM--;this.renderSchedule();},
   schNext(){if(S.schM===11){S.schM=0;S.schY++;}else S.schM++;this.renderSchedule();},
   togDay(dow){const t=document.getElementById('tog-'+dow),r=document.getElementById('tr-'+dow);t.classList.toggle('on');const on=t.classList.contains('on');r.style.opacity=on?1:0.3;r.style.pointerEvents=on?'':'none';},
-  async saveSched(){
+  async saveSched(barberId){
     try{
       for(const dow of [0,1,2,3,4,5,6]){
         const t=document.getElementById('tog-'+dow);if(!t)continue;
         const isOpen=t.classList.contains('on');
         const open=(document.getElementById('open-'+dow)?.value||'09:00')+':00';
         const close=(document.getElementById('close-'+dow)?.value||'21:00')+':00';
-        const ex=S.schedule[dow];
+        const key=`${barberId}_${dow}`;
+        const ex=S.schedule[key];
         if(ex?.id)await SB.patch(`schedule?id=eq.${ex.id}`,{is_open:isOpen,open_time:open,close_time:close});
-        else await SB.post('schedule',{day_of_week:dow,is_open:isOpen,open_time:open,close_time:close});
+        else await SB.post('schedule',{day_of_week:dow,barber_id:barberId,is_open:isOpen,open_time:open,close_time:close});
       }
-      showToast('График сохранён ✓');await loadSched();
+      showToast('График сохранён ✓');await loadAllSched();
     }catch(e){showToast('Ошибка');}
   },
 
-  // КЛИЕНТЫ
+  // ── РУЧНАЯ ЗАПИСЬ ──
+  async openManual(preDate, preTime){
+    S.manualSelBarber=null;S.manualSelSvcs=[];S.manualSelDate=preDate||null;S.manualSelTime=preTime||null;
+    S.manualCalY=new Date().getFullYear();S.manualCalM=new Date().getMonth();
+    await Promise.all([loadAllBarbers(),loadSvcs(true),loadBookings(),loadAllSched(),loadDaysOff()]);
+    document.getElementById('manual-step1').style.display='block';
+    document.getElementById('manual-step2').style.display='none';
+    document.getElementById('manual-step3').style.display='none';
+    document.getElementById('manual-step4').style.display='none';
+    document.getElementById('m-name').value='';
+    document.getElementById('m-phone').value='';
+    Modal.open('modal-manual');
+  },
+  manualStep2(){
+    const name=document.getElementById('m-name').value.trim();
+    const phone=document.getElementById('m-phone').value.trim();
+    if(!name){showToast('Введите имя');return;}
+    if(!phone){showToast('Введите телефон');return;}
+    if(phone.replace(/\D/g,'').length<7){showToast('Некорректный телефон');return;}
+    // Рендерим список барберов
+    document.getElementById('m-barber-list').innerHTML=S.barbers.filter(b=>b.is_active).map(b=>`
+      <div class="client-card" style="cursor:pointer;border:1px solid ${S.manualSelBarber?.id===b.id?'var(--gold)':'var(--bg5)'}" onclick="Admin.manualSelBarberFn(${b.id})">
+        <div class="client-avatar">${b.photo_url?`<img src="${b.photo_url}" onerror="this.parentNode.textContent='✂'">`:' ✂'}</div>
+        <div style="flex:1"><div style="font-size:14px;color:var(--cream)">${b.name}</div></div>
+        ${S.manualSelBarber?.id===b.id?'<span style="color:var(--gold)">✓</span>':''}
+      </div>`).join('');
+    const btn=document.getElementById('m-btn-step3');
+    btn.disabled=!S.manualSelBarber;btn.style.opacity=S.manualSelBarber?1:0.4;
+    document.getElementById('manual-step1').style.display='none';
+    document.getElementById('manual-step2').style.display='block';
+  },
+  manualSelBarberFn(id){
+    S.manualSelBarber=S.barbers.find(b=>b.id===id);
+    document.getElementById('m-barber-list').querySelectorAll('.client-card').forEach((el,i)=>{
+      el.style.borderColor=S.barbers.filter(b=>b.is_active)[i]?.id===id?'var(--gold)':'var(--bg5)';
+    });
+    const btn=document.getElementById('m-btn-step3');btn.disabled=false;btn.style.opacity=1;
+  },
+  manualStep3(){
+    S.manualSelSvcs=[];
+    document.getElementById('m-svc-list').innerHTML=S.services.filter(s=>s.is_active).map(s=>`
+      <div class="svc-item" onclick="Admin.manualToggleSvc(${s.id})">
+        <div class="svc-check" id="mchk-${s.id}"><svg viewBox="0 0 12 10"><polyline points="1,5 4.5,9 11,1"/></svg></div>
+        <div class="svc-info"><div class="svc-name">${s.name}</div><div class="svc-meta">${s.duration_minutes} мин</div></div>
+        <div class="svc-price">${s.price.toLocaleString()} ₽</div>
+      </div>`).join('');
+    const btn=document.getElementById('m-btn-step4');btn.disabled=true;btn.style.opacity=0.4;
+    document.getElementById('m-svc-summary').style.display='none';
+    document.getElementById('manual-step2').style.display='none';
+    document.getElementById('manual-step3').style.display='block';
+  },
+  manualToggleSvc(id){
+    const i=S.manualSelSvcs.indexOf(id);
+    if(i===-1)S.manualSelSvcs.push(id);else S.manualSelSvcs.splice(i,1);
+    S.services.forEach(s=>{const el=document.getElementById('mchk-'+s.id);if(el)el.className='svc-check'+(S.manualSelSvcs.includes(s.id)?' checked':'');});
+    const btn=document.getElementById('m-btn-step4');
+    if(S.manualSelSvcs.length){
+      const price=S.manualSelSvcs.reduce((s,id)=>{const x=S.services.find(v=>v.id===id);return s+(x?x.price:0);},0);
+      const dur=S.manualSelSvcs.reduce((s,id)=>{const x=S.services.find(v=>v.id===id);return s+(x?x.duration_minutes:0);},0);
+      document.getElementById('m-svc-total').textContent=price.toLocaleString()+' ₽';
+      document.getElementById('m-svc-dur').textContent='~'+dur+' мин';
+      document.getElementById('m-svc-summary').style.display='block';
+      btn.disabled=false;btn.style.opacity=1;
+    }else{document.getElementById('m-svc-summary').style.display='none';btn.disabled=true;btn.style.opacity=0.4;}
+  },
+  manualStep4(){
+    document.getElementById('manual-step3').style.display='none';
+    document.getElementById('manual-step4').style.display='block';
+    const btn=document.getElementById('m-btn-save');
+    btn.disabled=!(S.manualSelDate&&S.manualSelTime);btn.style.opacity=(S.manualSelDate&&S.manualSelTime)?1:0.4;
+    this.renderManualCal();
+  },
+  renderManualCal(){
+    const cal=document.getElementById('m-cal');if(!cal)return;
+    const y=S.manualCalY,m=S.manualCalM,bid=S.manualSelBarber?.id;
+    const mNames=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+    const dLabels=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+    const today=todayStr(),firstDow=new Date(y,m,1).getDay(),lastDay=new Date(y,m+1,0).getDate();
+    let cells='';
+    for(let i=0;i<firstDow;i++)cells+='<div></div>';
+    for(let d=1;d<=lastDay;d++){
+      const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const past=ds<today,off=isOff(ds,bid),sel=ds===S.manualSelDate,tod=ds===today;
+      let cls='date-cell';
+      if(past)cls+=' past';else if(off)cls+=' off';else cls+=' available';
+      if(tod&&!past)cls+=' today';if(sel)cls+=' selected';
+      cells+=`<div class="${cls}" ${(!past&&!off)?`onclick="Admin.manualPickDate('${ds}')"`:''} >${d}</div>`;
+    }
+    let slotsHtml='';
+    if(S.manualSelDate){
+      const dow=new Date(S.manualSelDate+'T12:00:00').getDay();
+      const key=bid?`${bid}_${dow}`:dow;
+      const sched=S.schedule[key];
+      if(sched&&sched.is_open){
+        const dur=S.manualSelSvcs.reduce((s,id)=>{const x=S.services.find(v=>v.id===id);return s+(x?x.duration_minutes:0);},0)||30;
+        const openMin=timeToMin(sched.open_time),closeMin=timeToMin(sched.close_time);
+        const busy=getBusy(S.manualSelDate,bid);
+        const isToday=S.manualSelDate===todayStr(),now=new Date(),nowMin=isToday?now.getHours()*60+now.getMinutes():0;
+        const slots=[];
+        for(let t=openMin;t+dur<=closeMin;t+=30){
+          const isPast=isToday&&t<nowMin+30;let isBusy=isPast;
+          if(!isBusy){for(let bl=t;bl<t+dur;bl+=30){if(busy.has(bl)){isBusy=true;break;}}}
+          const hh=String(Math.floor(t/60)).padStart(2,'0'),mm=String(t%60).padStart(2,'0');
+          slots.push({ts:`${hh}:${mm}`,busy:isBusy});
+        }
+        slotsHtml=`<div style="font-size:10px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin:12px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--gold-dim)">Выберите время</div>
+          <div class="time-grid">${slots.map(s=>`<div class="time-slot ${s.busy?'busy':'free'} ${S.manualSelTime===s.ts?'selected':''}" onclick="${s.busy?'':` Admin.manualPickTime('${s.ts}')`}">${s.ts}</div>`).join('')}</div>`;
+      }
+    }
+    cal.innerHTML=`
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <button class="cal-nav-btn" onclick="Admin.manualPrevM()">‹</button>
+        <span style="font-size:14px;color:var(--cream)">${mNames[m]} ${y}</span>
+        <button class="cal-nav-btn" onclick="Admin.manualNextM()">›</button>
+      </div>
+      <div class="date-grid">${dLabels.map(l=>`<div class="date-label">${l}</div>`).join('')}</div>
+      <div class="date-grid">${cells}</div>${slotsHtml}`;
+  },
+  manualPickDate(ds){S.manualSelDate=ds;S.manualSelTime=null;document.getElementById('m-btn-save').disabled=true;document.getElementById('m-btn-save').style.opacity=0.4;this.renderManualCal();},
+  manualPickTime(t){S.manualSelTime=t;document.getElementById('m-btn-save').disabled=false;document.getElementById('m-btn-save').style.opacity=1;this.renderManualCal();},
+  manualPrevM(){if(S.manualCalM===0){S.manualCalM=11;S.manualCalY--;}else S.manualCalM--;this.renderManualCal();},
+  manualNextM(){if(S.manualCalM===11){S.manualCalM=0;S.manualCalY++;}else S.manualCalM++;this.renderManualCal();},
+  manualBack(toStep){
+    document.getElementById('manual-step1').style.display=toStep===1?'block':'none';
+    document.getElementById('manual-step2').style.display=toStep===2?'block':'none';
+    document.getElementById('manual-step3').style.display=toStep===3?'block':'none';
+    document.getElementById('manual-step4').style.display='none';
+  },
+  async saveManual(){
+    const name=document.getElementById('m-name').value.trim();
+    const phone=document.getElementById('m-phone').value.trim();
+    if(!name||!S.manualSelDate||!S.manualSelTime||!S.manualSelSvcs.length){showToast('Заполните все данные');return;}
+    const svcs=S.manualSelSvcs.map(id=>{const s=S.services.find(v=>v.id===id);return{id,name:s.name,price:s.price,duration:s.duration_minutes};});
+    try{
+      await SB.post('bookings',{
+        date:S.manualSelDate,time:S.manualSelTime+':00',services:svcs,
+        total_price:svcs.reduce((s,x)=>s+x.price,0),total_duration:svcs.reduce((s,x)=>s+x.duration,0),
+        client_name:name,client_phone:phone||null,client_telegram_id:null,
+        barber_id:S.manualSelBarber?.id||null,barber_name:S.manualSelBarber?.name||null,
+        reminder_sent:false,status:'pending',
+      });
+      Modal.close('modal-manual');showToast('Запись добавлена ✓');
+      S.adminSelDate=S.manualSelDate;this.renderBookings();
+    }catch(e){showToast('Ошибка сохранения');}
+  },
+  openManualAt(date,time){this.openManual(date,time);},
+
+  // ── КЛИЕНТЫ ──
   async renderClients(){
     const c=document.getElementById('admin-content');
     try{
       const all=await SB.get('bookings?order=created_at.desc')||[];
-      // Клиенты с Telegram
       const tg={};
       all.filter(b=>b.client_telegram_id).forEach(b=>{
         const id=b.client_telegram_id;
         if(!tg[id])tg[id]={id,name:b.client_name||'Клиент',username:b.client_telegram_username,phone:b.client_phone,bookings:0,spent:0,isAdmin:id===String(CONFIG.ADMIN_TELEGRAM_ID)};
-        tg[id].bookings++;
-        if(b.status==='done')tg[id].spent+=(b.total_price||0);
+        tg[id].bookings++;if(b.status==='done')tg[id].spent+=(b.total_price||0);
       });
-      // Клиенты без Telegram
       const noTg={};
       all.filter(b=>!b.client_telegram_id&&(b.client_name||b.client_phone)).forEach(b=>{
         const key=(b.client_name||'')+'_'+(b.client_phone||'');
         if(!noTg[key])noTg[key]={name:b.client_name||'Клиент',phone:b.client_phone,bookings:0,spent:0};
-        noTg[key].bookings++;
-        if(b.status==='done')noTg[key].spent+=(b.total_price||0);
+        noTg[key].bookings++;if(b.status==='done')noTg[key].spent+=(b.total_price||0);
       });
       const tgList=Object.values(tg).sort((a,b)=>b.bookings-a.bookings);
       const noTgList=Object.values(noTg).sort((a,b)=>b.bookings-a.bookings);
       c.innerHTML=`
-        ${tgList.length?`
-          <div class="sec-title">Через Telegram (${tgList.length})</div>
-          ${tgList.map(cl=>`
-            <div class="client-card">
-              <div class="client-avatar">${cl.name.charAt(0).toUpperCase()}</div>
-              <div style="flex:1;min-width:0">
-                <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;flex-wrap:wrap">
-                  <span style="font-size:14px;color:var(--cream);font-weight:500">${cl.name}</span>
-                  <span class="badge ${cl.isAdmin?'badge-admin':'badge-client'}">${cl.isAdmin?'Админ':'Клиент'}</span>
-                </div>
-                ${cl.username?`<div style="font-size:12px;color:var(--muted)">@${cl.username}</div>`:''}
-                ${cl.phone?`<div style="font-size:12px;color:var(--muted)">${cl.phone}</div>`:''}
-                <div style="font-size:11px;color:var(--muted);margin-top:3px">${cl.bookings} зап. · ${cl.spent.toLocaleString()} ₽</div>
+        ${tgList.length?`<div class="sec-title">Через Telegram (${tgList.length})</div>
+          ${tgList.map(cl=>`<div class="client-card">
+            <div class="client-avatar">${cl.name.charAt(0).toUpperCase()}</div>
+            <div style="flex:1;min-width:0">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;flex-wrap:wrap">
+                <span style="font-size:14px;color:var(--cream);font-weight:500">${cl.name}</span>
+                <span class="badge ${cl.isAdmin?'badge-admin':'badge-client'}">${cl.isAdmin?'Админ':'Клиент'}</span>
               </div>
-              <button class="btn-icon" style="font-size:16px;flex-shrink:0" title="${cl.isAdmin?'Снять права':'Назначить админом'}" onclick="Admin.toggleAdminRole('${cl.id}','${cl.name.replace(/'/g,"\\'")}',${cl.isAdmin})">${cl.isAdmin?'✕':'👑'}</button>
-            </div>`).join('')}`:''}
-        ${noTgList.length?`
-          <div class="sec-title">Без Telegram (${noTgList.length})</div>
-          ${noTgList.map(cl=>`
-            <div class="client-card">
-              <div class="client-avatar">${cl.name.charAt(0).toUpperCase()}</div>
-              <div style="flex:1;min-width:0">
-                <div style="font-size:14px;color:var(--cream);font-weight:500;margin-bottom:2px">${cl.name}</div>
-                ${cl.phone?`<div style="font-size:12px;color:var(--muted)">${cl.phone}</div>`:''}
-                <div style="font-size:11px;color:var(--muted);margin-top:3px">${cl.bookings} зап. · ${cl.spent.toLocaleString()} ₽</div>
-              </div>
-            </div>`).join('')}`:''}
+              ${cl.username?`<div style="font-size:12px;color:var(--muted)">@${cl.username}</div>`:''}
+              ${cl.phone?`<div style="font-size:12px;color:var(--muted)">${cl.phone}</div>`:''}
+              <div style="font-size:11px;color:var(--muted);margin-top:3px">${cl.bookings} зап. · ${cl.spent.toLocaleString()} ₽</div>
+            </div>
+            <button class="btn-icon" style="font-size:16px;flex-shrink:0" onclick="Admin.toggleAdminRole('${cl.id}','${cl.name.replace(/'/g,"\\'")}',${cl.isAdmin})">${cl.isAdmin?'✕':'👑'}</button>
+          </div>`).join('')}`:''}
+        ${noTgList.length?`<div class="sec-title">Без Telegram (${noTgList.length})</div>
+          ${noTgList.map(cl=>`<div class="client-card">
+            <div class="client-avatar">${cl.name.charAt(0).toUpperCase()}</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:14px;color:var(--cream);font-weight:500;margin-bottom:2px">${cl.name}</div>
+              ${cl.phone?`<div style="font-size:12px;color:var(--muted)">${cl.phone}</div>`:''}
+              <div style="font-size:11px;color:var(--muted);margin-top:3px">${cl.bookings} зап. · ${cl.spent.toLocaleString()} ₽</div>
+            </div>
+          </div>`).join('')}`:''}
         ${!tgList.length&&!noTgList.length?'<div class="empty"><div class="empty-icon">👥</div><div class="empty-text">Клиентов пока нет</div></div>':''}`;
-    }catch(e){document.getElementById('admin-content').innerHTML='<div class="empty"><div class="empty-text">Ошибка загрузки</div></div>';}
+    }catch(e){document.getElementById('admin-content').innerHTML='<div class="empty"><div class="empty-text">Ошибка</div></div>';}
   },
-
   async toggleAdminRole(tgId,name,isAdmin){
     if(isAdmin&&tgId===String(CONFIG.ADMIN_TELEGRAM_ID)){showToast('Нельзя снять главного админа');return;}
-    const msg=isAdmin?`Снять права администратора у ${name}?`:`Назначить ${name} администратором?`;
-    if(!confirm(msg))return;
+    if(!confirm(isAdmin?`Снять права у ${name}?`:`Назначить ${name} администратором?`))return;
     try{
-      if(isAdmin){
-        await SB.delete(`admins?telegram_id=eq.${tgId}`);
-        showToast('Права сняты');
-      } else {
-        await SB.post('admins',{telegram_id:tgId,name});
-        showToast(`${name} — теперь администратор`);
-      }
+      if(isAdmin){await SB.delete(`admins?telegram_id=eq.${tgId}`);showToast('Права сняты');}
+      else{await SB.post('admins',{telegram_id:tgId,name});showToast(`${name} — теперь администратор`);}
       this.renderClients();
-    }catch(e){showToast('Ошибка (возможно нет таблицы admins)');}
+    }catch(e){showToast('Ошибка');}
   },
 
-  // ИСТОРИЯ
-  async renderHistory() {
-    const c = document.getElementById('admin-content');
-    if (!S.histY) { S.histY = new Date().getFullYear(); S.histM = new Date().getMonth(); }
-
-    // Загружаем ВСЕ записи за выбранный месяц (включая отменённые)
-    const y = S.histY, m = S.histM;
-    const from = `${y}-${String(m+1).padStart(2,'0')}-01`;
-    const lastDay = new Date(y, m+1, 0).getDate();
-    const to = `${y}-${String(m+1).padStart(2,'0')}-${String(lastDay).padStart(2,'0')}`;
-
-    let allBks = [];
-    try {
-      allBks = await SB.get(`bookings?date=gte.${from}&date=lte.${to}&order=date.asc,time.asc`) || [];
-    } catch(e) {}
-
-    const monthNames = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-    const dayLabels = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
-    const firstDow = new Date(y, m, 1).getDay();
-    const today = todayStr();
-
-    // Группируем по дате
-    const byDate = {};
-    allBks.forEach(b => { if(!byDate[b.date]) byDate[b.date]=[]; byDate[b.date].push(b); });
-
-    // Считаем статистику за месяц
-    const totalDone = allBks.filter(b=>b.status==='done').length;
-    const totalPending = allBks.filter(b=>b.status==='pending').length;
-    const totalCancelled = allBks.filter(b=>b.status==='cancelled').length;
-    const totalRevenue = allBks.filter(b=>b.status==='done').reduce((s,b)=>s+(b.total_price||0),0);
-
-    // Строим календарь
-    let cells = '';
-    for(let i=0;i<firstDow;i++) cells+='<div></div>';
+  // ── ИСТОРИЯ ──
+  async renderHistory(){
+    const c=document.getElementById('admin-content');
+    if(!S.histY){S.histY=new Date().getFullYear();S.histM=new Date().getMonth();}
+    const y=S.histY,m=S.histM;
+    const from=`${y}-${String(m+1).padStart(2,'0')}-01`;
+    const lastDay=new Date(y,m+1,0).getDate();
+    const to=`${y}-${String(m+1).padStart(2,'0')}-${String(lastDay).padStart(2,'0')}`;
+    let allBks=[];
+    try{allBks=await SB.get(`bookings?date=gte.${from}&date=lte.${to}&order=date.asc,time.asc`)||[];}catch(e){}
+    const mNames=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+    const dLabels=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+    const firstDow=new Date(y,m,1).getDay(),today=todayStr();
+    const byDate={};allBks.forEach(b=>{if(!byDate[b.date])byDate[b.date]=[];byDate[b.date].push(b);});
+    const totalDone=allBks.filter(b=>b.status==='done').length;
+    const totalRevenue=allBks.filter(b=>b.status==='done').reduce((s,b)=>s+(b.total_price||0),0);
+    let cells='';
+    for(let i=0;i<firstDow;i++)cells+='<div></div>';
     for(let d=1;d<=lastDay;d++){
       const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-      const dayBks = byDate[ds] || [];
-      const hasPending = dayBks.some(b=>b.status==='pending');
-      const hasDone = dayBks.some(b=>b.status==='done');
-      const isToday = ds === today;
-      const isSel = ds === S.histSelDate;
-      let bg = 'transparent';
-      if (hasDone) bg = 'rgba(39,174,96,0.2)';
-      if (hasPending) bg = 'rgba(201,168,76,0.2)';
-      cells += `<div class="date-cell ${isToday?'today':''} ${isSel?'selected':''} ${dayBks.length?'available':''}"
-        style="${dayBks.length?`background:${bg};`:''}position:relative;"
-        onclick="${dayBks.length?`Admin.histShowDay('${ds}')`:''}" >
-        ${d}
-        ${dayBks.length?`<div style="position:absolute;bottom:2px;left:50%;transform:translateX(-50%);font-size:8px;color:${hasDone?'#27AE60':hasPending?'var(--gold)':'var(--muted)'}">${dayBks.length}</div>`:''}
-      </div>`;
+      const dayBks=byDate[ds]||[];
+      const hasPending=dayBks.some(b=>b.status==='pending'),hasDone=dayBks.some(b=>b.status==='done');
+      const isT=ds===today,isSel=ds===S.histSelDate;
+      let bg='transparent';if(hasDone)bg='rgba(39,174,96,0.2)';if(hasPending)bg='rgba(201,168,76,0.2)';
+      cells+=`<div class="date-cell ${isT?'today':''} ${isSel?'selected':''} ${dayBks.length?'available':''}" style="${dayBks.length?`background:${bg};`:''}position:relative;" onclick="${dayBks.length?`Admin.histShowDay('${ds}')`:''}" >${d}${dayBks.length?`<div style="position:absolute;bottom:2px;left:50%;transform:translateX(-50%);font-size:8px;color:${hasDone?'#27AE60':hasPending?'var(--gold)':'var(--muted)'}">${dayBks.length}</div>`:''}</div>`;
     }
-
-    // Детальный вид выбранного дня
-    let dayDetail = '';
-    if (S.histSelDate && byDate[S.histSelDate]) {
-      const bks = byDate[S.histSelDate];
-      const df = new Date(S.histSelDate+'T12:00:00').toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});
+    let dayDetail='';
+    if(S.histSelDate&&byDate[S.histSelDate]){
+      const bks=byDate[S.histSelDate];
+      const df=new Date(S.histSelDate+'T12:00:00').toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});
       const sb={pending:'badge-pending',done:'badge-done',cancelled:'badge-cancelled'};
       const sm={pending:'Ожидает',done:'Выполнено',cancelled:'Отменено'};
-      dayDetail = `
-        <div class="sec-title">${df}</div>
-        ${bks.map(b=>`
-          <div class="booking-card ${b.status}" style="opacity:${b.status==='cancelled'?0.5:1}">
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <div class="booking-time">${b.time.slice(0,5)} · ${b.total_duration} мин</div>
-              <span class="badge ${sb[b.status]||'badge-pending'}">${sm[b.status]||b.status}</span>
-            </div>
-            <div class="booking-client">${b.client_name||'Клиент'}${b.client_phone?' · '+b.client_phone:''}</div>
-            <div class="booking-services">${(b.services||[]).map(s=>s.name).join(', ')}</div>
-            <div style="font-size:13px;color:var(--gold);margin-top:4px">${(b.total_price||0).toLocaleString()} ₽</div>
-          </div>`).join('')}`;
+      dayDetail=`<div class="sec-title">${df}</div>${bks.map(b=>`
+        <div class="booking-card ${b.status}" style="opacity:${b.status==='cancelled'?0.5:1}">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="booking-time">${b.time.slice(0,5)} · ${b.total_duration} мин</div>
+            <span class="badge ${sb[b.status]||'badge-pending'}">${sm[b.status]||b.status}</span>
+          </div>
+          ${b.barber_name?`<div style="font-size:11px;color:var(--gold-dark);margin-top:2px">✂ ${b.barber_name}</div>`:''}
+          <div class="booking-client">${b.client_name||'Клиент'}${b.client_phone?' · '+b.client_phone:''}</div>
+          <div class="booking-services">${(b.services||[]).map(s=>s.name).join(', ')}</div>
+          <div style="font-size:13px;color:var(--gold);margin-top:4px">${(b.total_price||0).toLocaleString()} ₽</div>
+        </div>`).join('')}`;
     }
-
-    c.innerHTML = `
+    c.innerHTML=`
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
-        <div class="card" style="text-align:center;padding:10px">
-          <div style="font-size:18px;color:var(--gold);font-weight:700">${totalDone}</div>
-          <div style="font-size:10px;color:var(--muted);margin-top:2px">выполнено</div>
-        </div>
-        <div class="card" style="text-align:center;padding:10px">
-          <div style="font-size:18px;color:var(--gold);font-weight:700">${totalRevenue.toLocaleString()} ₽</div>
-          <div style="font-size:10px;color:var(--muted);margin-top:2px">выручка</div>
-        </div>
+        <div class="card" style="text-align:center;padding:10px"><div style="font-size:18px;color:var(--gold);font-weight:700">${totalDone}</div><div style="font-size:10px;color:var(--muted);margin-top:2px">выполнено</div></div>
+        <div class="card" style="text-align:center;padding:10px"><div style="font-size:18px;color:var(--gold);font-weight:700">${totalRevenue.toLocaleString()} ₽</div><div style="font-size:10px;color:var(--muted);margin-top:2px">выручка</div></div>
       </div>
-
       <div class="card" style="margin-bottom:14px">
         <div class="cal-nav">
           <button class="cal-nav-btn" onclick="Admin.histPrev()">‹</button>
-          <span class="cal-month">${monthNames[m]} ${y}</span>
+          <span class="cal-month">${mNames[m]} ${y}</span>
           <button class="cal-nav-btn" onclick="Admin.histNext()">›</button>
         </div>
-        <div style="font-size:11px;color:var(--muted);margin-bottom:8px;text-align:center">
-          <span style="color:var(--gold)">●</span> ожидает &nbsp;
-          <span style="color:#27AE60">●</span> выполнено &nbsp;
-          <span style="color:var(--muted)">отменено не показано</span>
-        </div>
-        <div class="date-grid">${dayLabels.map(l=>`<div class="date-label">${l}</div>`).join('')}</div>
+        <div class="date-grid">${dLabels.map(l=>`<div class="date-label">${l}</div>`).join('')}</div>
         <div class="date-grid">${cells}</div>
       </div>
-
-      ${dayDetail || (allBks.length===0 ? '<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Нет записей за этот месяц</div></div>' : '<div style="text-align:center;color:var(--muted);font-size:13px;padding:10px">Нажми на день чтобы увидеть записи</div>')}
-    `;
+      ${dayDetail||(allBks.length===0?'<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Нет записей за этот месяц</div></div>':'<div style="text-align:center;color:var(--muted);font-size:13px;padding:10px">Нажми на день для просмотра</div>')}`;
   },
-
-  histShowDay(ds) {
-    S.histSelDate = S.histSelDate === ds ? null : ds;
-    this.renderHistory();
-  },
-  histPrev() { if(S.histM===0){S.histM=11;S.histY--;}else S.histM--; S.histSelDate=null; this.renderHistory(); },
-  histNext() { if(S.histM===11){S.histM=0;S.histY++;}else S.histM++; S.histSelDate=null; this.renderHistory(); },
+  histShowDay(ds){S.histSelDate=S.histSelDate===ds?null:ds;this.renderHistory();},
+  histPrev(){if(S.histM===0){S.histM=11;S.histY--;}else S.histM--;S.histSelDate=null;this.renderHistory();},
+  histNext(){if(S.histM===11){S.histM=0;S.histY++;}else S.histM++;S.histSelDate=null;this.renderHistory();},
 };
 
 // ── INIT ──────────────────────────────────────
 async function init(){
   await loadSvcs();
-
-  if (TG_USER) {
-    const isMainAdmin = TG_USER.id === CONFIG.ADMIN_TELEGRAM_ID;
-    const p = new URLSearchParams(window.location.search);
-    const wantsAdmin = p.get('admin')==='1' || TG?.initDataUnsafe?.start_param==='admin';
-
-    if (isMainAdmin && wantsAdmin) {
-      Nav.go('admin'); return;
-    }
-
-    if (!isMainAdmin && wantsAdmin) {
-      // Проверяем в таблице admins
-      try {
-        const rows = await SB.get(`admins?telegram_id=eq.${TG_USER.id}`) || [];
-        if (rows.length > 0) { Nav.go('admin'); return; }
-      } catch(e) {
-        console.warn('Admin check failed:', e);
-      }
-    }
-
-    // Также проверяем без параметра — вдруг уже авторизованный админ открыл просто ссылку
-    if (!isMainAdmin) {
-      try {
-        const rows = await SB.get(`admins?telegram_id=eq.${TG_USER.id}`) || [];
-        if (rows.length > 0 && wantsAdmin) { Nav.go('admin'); return; }
-      } catch(e) {}
+  if(TG_USER){
+    const isMain=TG_USER.id===CONFIG.ADMIN_TELEGRAM_ID;
+    const p=new URLSearchParams(window.location.search);
+    const wantsAdmin=p.get('admin')==='1'||TG?.initDataUnsafe?.start_param==='admin';
+    if(isMain&&wantsAdmin){Nav.go('admin');return;}
+    if(!isMain&&wantsAdmin){
+      try{const rows=await SB.get(`admins?telegram_id=eq.${TG_USER.id}`)||[];if(rows.length>0){Nav.go('admin');return;}}catch(e){}
     }
   }
-
   Home.render();
 }
 init();
