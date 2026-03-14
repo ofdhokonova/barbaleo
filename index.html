@@ -1223,20 +1223,35 @@ const Admin = {
 // ── INIT ──────────────────────────────────────
 async function init(){
   await loadSvcs();
-  const p = new URLSearchParams(window.location.search);
-  const isAdminParam = p.get('admin')==='1' || TG?.initDataUnsafe?.start_param==='admin';
-  if (TG_USER && isAdminParam) {
-    // Проверяем — главный админ или в таблице admins
+
+  if (TG_USER) {
     const isMainAdmin = TG_USER.id === CONFIG.ADMIN_TELEGRAM_ID;
-    let isDbAdmin = false;
+    const p = new URLSearchParams(window.location.search);
+    const wantsAdmin = p.get('admin')==='1' || TG?.initDataUnsafe?.start_param==='admin';
+
+    if (isMainAdmin && wantsAdmin) {
+      Nav.go('admin'); return;
+    }
+
+    if (!isMainAdmin && wantsAdmin) {
+      // Проверяем в таблице admins
+      try {
+        const rows = await SB.get(`admins?telegram_id=eq.${TG_USER.id}`) || [];
+        if (rows.length > 0) { Nav.go('admin'); return; }
+      } catch(e) {
+        console.warn('Admin check failed:', e);
+      }
+    }
+
+    // Также проверяем без параметра — вдруг уже авторизованный админ открыл просто ссылку
     if (!isMainAdmin) {
       try {
         const rows = await SB.get(`admins?telegram_id=eq.${TG_USER.id}`) || [];
-        isDbAdmin = rows.length > 0;
+        if (rows.length > 0 && wantsAdmin) { Nav.go('admin'); return; }
       } catch(e) {}
     }
-    if (isMainAdmin || isDbAdmin) { Nav.go('admin'); return; }
   }
+
   Home.render();
 }
 init();

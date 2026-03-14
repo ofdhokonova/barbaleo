@@ -133,12 +133,20 @@ async function sendReminders() {
   }
 }
 
+async function isAdminUser(chatId) {
+  if (String(chatId) === String(ADMIN_ID)) return true;
+  try {
+    const rows = await sbReq('GET', `admins?telegram_id=eq.${chatId}`) || [];
+    return rows.length > 0;
+  } catch(e) { return false; }
+}
+
 async function handleUpdate(update) {
   const msg = update.message;
   if (!msg) return;
   const chatId = msg.chat.id;
   const text = (msg.text || '').trim();
-  const isAdmin = String(chatId) === String(ADMIN_ID);
+  const isAdmin = await isAdminUser(chatId);
 
   if (text.startsWith('/start')) {
     const param = text.split(' ')[1];
@@ -154,10 +162,16 @@ async function handleUpdate(update) {
     return;
   }
 
-  if (text === '/admin' && isAdmin) {
-    await sendMessage(chatId, '👑 Панель управления:', {
-      reply_markup: { inline_keyboard: [[{ text: '⚙ Открыть админку', web_app: { url: WEBAPP_URL + '?admin=1' } }]] },
-    });
+  if (text === '/admin') {
+    if (isAdmin) {
+      await sendMessage(chatId, '👑 Панель управления:', {
+        reply_markup: { inline_keyboard: [[{ text: '⚙ Открыть админку', web_app: { url: WEBAPP_URL + '?admin=1' } }]] },
+      });
+    } else {
+      await sendMessage(chatId, 'У вас нет прав администратора.', {
+        reply_markup: { inline_keyboard: [[{ text: '✂ Записаться', web_app: { url: WEBAPP_URL } }]] },
+      });
+    }
     return;
   }
 
